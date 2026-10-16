@@ -2,7 +2,7 @@
 
 > Un e-commerce completo (dimostrativo) costruito con **React** e **JavaScript**: catalogo, ricerca e filtri, carrello, checkout multi-step e area utente con autenticazione.
 
-🔗 **Demo live:** [https://ecommerce-gabriele.vercel.app/](https://tuo-progetto.vercel.app)
+🔗 **Demo live:** [https://ecommerce-gabriele.vercel.app](https://tuo-progetto.vercel.app)
 📂 **Codice:** [github.com/tuo-username/ecommerce-app](https://github.com/tuo-username/ecommerce-app)
 
 ![Anteprima del progetto](./docs/screenshot-home.png)
