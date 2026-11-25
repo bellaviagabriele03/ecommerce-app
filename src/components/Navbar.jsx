@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { NavLink, useNavigate } from "react-router";
-import { Search, User, ShoppingBag, Heart } from "lucide-react";
+import { Search, User, ShoppingBag, Heart, Menu, X } from "lucide-react";
 import { useCart } from "../hooks/useCart";
 import { useAuth } from "../hooks/useAuth";
 
@@ -17,11 +17,13 @@ const navLinkClass = ({ isActive }) =>
 export default function Navbar() {
     const navigate = useNavigate();
     const [query, setQuery] = useState("");
+    const [menuOpen, setMenuOpen] = useState(false);
     const { count } = useCart();
     const { user } = useAuth();
 
     function handleSearch(e) {
         e.preventDefault();
+        setMenuOpen(false);
         navigate(query.trim() ? `/catalog?q=${encodeURIComponent(query.trim())}` : "/catalog");
     }
 
@@ -33,6 +35,13 @@ export default function Navbar() {
 
             <nav className="flex items-center justify-between gap-6 px-6 py-4">
                 <div className="flex items-center gap-10">
+                    <button
+                        onClick={() => setMenuOpen((open) => !open)}
+                        aria-label={menuOpen ? "Close menu" : "Open menu"}
+                        className="md:hidden"
+                    >
+                        {menuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+                    </button>
                     <NavLink className="logo text-2xl" to="/">
                         SHOPNOVA
                     </NavLink>
@@ -81,6 +90,31 @@ export default function Navbar() {
                     </NavLink>
                 </div>
             </nav>
+
+            {menuOpen ? (
+                <div className="border-t border-surface px-6 py-4 md:hidden">
+                    <form className="relative" onSubmit={handleSearch}>
+                        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-secondary" />
+                        <input
+                            type="search"
+                            value={query}
+                            onChange={(e) => setQuery(e.target.value)}
+                            placeholder="Search the store"
+                            className="search-bar w-full py-2 pl-9 pr-3 text-sm text-primary placeholder-secondary outline-none focus:ring-1 focus:ring-action"
+                        />
+                    </form>
+                    <div className="mt-4 flex flex-col gap-4 text-sm">
+                        {links.map((l) => (
+                            <NavLink key={l.name} className={navLinkClass} to={l.path} onClick={() => setMenuOpen(false)}>
+                                {l.name}
+                            </NavLink>
+                        ))}
+                        <NavLink className={navLinkClass} to="/wishlist" onClick={() => setMenuOpen(false)}>
+                            Wishlist
+                        </NavLink>
+                    </div>
+                </div>
+            ) : null}
         </header>
     );
 }
