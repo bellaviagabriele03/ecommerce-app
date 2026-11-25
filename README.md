@@ -23,7 +23,8 @@ Il progetto nasce con l'obiettivo di affrontare problemi concreti dello sviluppo
 - 💳 **Checkout in 3 step** (spedizione → pagamento → riepilogo) con validazione React Hook Form + Zod e codice sconto
 - 🔐 **Registrazione e login** via Supabase Auth, con rotte protette per profilo e storico ordini
 - 📦 **Storico ordini** salvato su Postgres (Supabase), con Row Level Security: ogni utente legge solo i propri ordini
-- 🔔 **Notifiche toast** e **skeleton loader** al posto degli spinner
+- 🌍 **Bilingue EN/IT** con selettore paese in navbar: cambia lingua su tutto il sito e adatta il form di spedizione (CAP a 5 cifre e Provincia per l'Italia, ZIP e State per gli USA)
+- 🔔 **Notifiche toast** (carrello, wishlist) e **messaggio temporaneo** per il codice sconto, più **skeleton loader** al posto degli spinner
 - 📱 **Design responsive mobile-first** (menu a scomparsa su mobile), con transizioni di pagina leggere (Framer Motion)
 - ♿ **Accessibilità**: aria-label, navigazione da tastiera, contrasti del tema scuro pensati per la leggibilità
 - ⚡ **Performance**: route in lazy loading (`React.lazy`/`Suspense`), immagini con `loading="lazy"`
