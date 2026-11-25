@@ -20,8 +20,11 @@ Il progetto nasce con l'obiettivo di affrontare problemi concreti dello sviluppo
 - 🔗 **Filtri e paginazione salvati nell'URL**: ogni ricerca è condivisibile tramite link
 - 🛒 **Carrello globale** (`useReducer` + Context) con modifica delle quantità e persistenza su `localStorage`
 - ❤️ **Wishlist** dei prodotti preferiti, persistente
-- 💳 **Checkout in 3 step** (spedizione → pagamento → riepilogo) con validazione React Hook Form + Zod e codice sconto
+- 💳 **Checkout in 3 step** (spedizione → pagamento → riepilogo) con validazione React Hook Form + Zod, accessibile anche come ospite
+- 🧾 **Pagamento simulato in stile Stripe test mode**: nessun addebito reale, si usa la carta di test `4242 4242 4242 4242`
+- 🏷️ **Codice sconto** applicabile da carrello o riepilogo: ricalcola subito sconto, spedizione, tasse e totale, e resta applicato tra le pagine
 - 🔐 **Registrazione e login** via Supabase Auth, con rotte protette per profilo e storico ordini
+- 👤 **Profilo utente** con avatar, nome e cognome modificabili, indirizzo di spedizione e metodo di pagamento salvati automaticamente dopo il primo ordine
 - 📦 **Storico ordini** salvato su Postgres (Supabase), con Row Level Security: ogni utente legge solo i propri ordini
 - 🌍 **Bilingue EN/IT** con selettore paese in navbar: cambia lingua su tutto il sito e adatta il form di spedizione (CAP a 5 cifre e Provincia per l'Italia, ZIP e State per gli USA)
 - 🔔 **Notifiche toast** (carrello, wishlist) e **messaggio temporaneo** per il codice sconto, più **skeleton loader** al posto degli spinner
@@ -81,7 +84,12 @@ Per provare l'app senza registrarti:
 - **Email:** `demo@shopnova.store`
 - **Password:** `ShopNova2026!`
 
-Codice sconto da provare al checkout: `WELCOME10`
+L'account demo ha già un indirizzo di spedizione e una carta di test salvati, visibili nella pagina Profilo.
+
+- **Codice sconto:** `WELCOME10` (10% di sconto)
+- **Carta di test (Stripe):** `4242 4242 4242 4242`, qualsiasi scadenza futura (es. `12/34`), qualsiasi CVC a 3 cifre
+
+> ⚠️ ShopNova è un negozio d'esempio: nessun ordine viene spedito e nessun pagamento reale viene effettuato.
 
 ## 🗂️ Struttura del progetto
 
@@ -89,27 +97,30 @@ Codice sconto da provare al checkout: `WELCOME10`
 src/
 ├── components/   # componenti riutilizzabili (Navbar, ProductCard, FormField...)
 ├── pages/        # pagine dell'applicazione (incluse account/ e checkout/)
-├── context/      # stato globale (carrello, wishlist, auth, toast)
-├── hooks/        # custom hooks (useCart, useAuth, useDebounce...)
+├── context/      # stato globale (carrello, wishlist, auth, toast, lingua)
+├── hooks/        # custom hooks (useCart, useAuth, useLocale, usePromoCode...)
+├── i18n/         # traduzioni inglese / italiano
 ├── services/     # API locale dei prodotti, client Supabase, storico ordini
-└── utils/        # funzioni di supporto (formatPrice...)
+└── utils/        # funzioni di supporto (formatPrice, calcolo totali e sconti)
 ```
 
 ## 🧠 Sfide affrontate
 
 - **Stato del carrello:** gestito con `useReducer` e Context per mantenere la logica prevedibile e testabile, con persistenza su `localStorage` tramite un hook `useLocalStorage` riutilizzabile anche per la wishlist.
 - **Filtri condivisibili:** sincronizzazione di categoria, prezzo, rating, ricerca, ordinamento e pagina con i parametri dell'URL, così il browser e i link restano coerenti.
-- **Checkout multi-step:** validazione per ogni step con Zod e React Hook Form, condividendo i dati tra gli step con il contesto delle rotte annidate di React Router, evitando di perdere le informazioni inserite tra un passaggio e l'altro.
+- **Checkout multi-step:** validazione per ogni step con Zod e React Hook Form. Inizialmente i dati passavano tra gli step tramite uno stato condiviso nel layout delle rotte, ma questo creava un problema di sincronizzazione con la navigazione e bloccava l'avanzamento al pagamento: ora ogni step passa i dati al successivo direttamente nello `state` della navigazione di React Router.
+- **Un'unica logica per prezzi e sconti:** il calcolo di sconto, spedizione gratuita, tasse e totale vive in una sola funzione testata (`utils/pricing.js`), usata sia dal carrello sia dal riepilogo, così i numeri non possono divergere.
+- **Localizzazione:** dizionario EN/IT con un hook `useLocale()`; la scelta del paese cambia lingua, valuta e regole di validazione dell'indirizzo (CAP a 5 cifre e Provincia per l'Italia).
 - **Checkout guest vs. account:** il mockup mostrava un checkout accessibile senza login (con un link "Log in" opzionale); l'ordine viene comunque salvato su Supabase solo se l'utente è autenticato, altrimenti resta visibile solo nella pagina di conferma.
 - **Permessi del database:** Row Level Security da sola non basta su Supabase se la tabella è creata da SQL Editor — serve anche una `GRANT` esplicita ad `authenticated` perché Postgres valuti le policy.
 
 ## 🔮 Possibili miglioramenti futuri
 
-- Pagamenti reali in modalità test con Stripe
+- Integrazione reale con Stripe (Checkout/Payment Intents in test mode) tramite una funzione serverless
+- Caricamento di una foto profilo (oggi l'avatar mostra le iniziali)
 - Pannello admin per gestire i prodotti
 - Recensioni degli utenti
 - Sincronizzazione di carrello e wishlist su Supabase (oggi solo `localStorage`)
-- Foto prodotto reali al posto dei placeholder generici attuali
 
 ## 📬 Contatti
 
