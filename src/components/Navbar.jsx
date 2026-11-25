@@ -80,7 +80,7 @@ export default function Navbar() {
                         <User className="h-5 w-5" />
                         {user ? (
                             <span className="hidden text-sm lg:inline">
-                                {user.user_metadata?.full_name?.split(" ")[0] ?? t("nav.account")}
+                                {user.user_metadata?.first_name ?? t("nav.account")}
                             </span>
                         ) : null}
                     </NavLink>

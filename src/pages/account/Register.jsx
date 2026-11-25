@@ -11,7 +11,8 @@ export default function Register() {
     useDocumentTitle(t("account.createAccount"));
     const navigate = useNavigate();
     const { signUp } = useAuth();
-    const [fullName, setFullName] = useState("");
+    const [firstName, setFirstName] = useState("");
+    const [lastName, setLastName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [agreed, setAgreed] = useState(false);
@@ -33,7 +34,7 @@ export default function Register() {
 
         setSubmitting(true);
         try {
-            await signUp(email, password, fullName);
+            await signUp(email, password, firstName, lastName);
             navigate("/account/orders");
         } catch (err) {
             setError(err.message);
@@ -51,7 +52,10 @@ export default function Register() {
             </p>
 
             <form onSubmit={onSubmit} className="mt-8 space-y-4 text-left">
-                <FormField label={t("account.fullName")} placeholder={t("account.fullName")} value={fullName} onChange={(e) => setFullName(e.target.value)} required />
+                <div className="grid grid-cols-2 gap-4">
+                    <FormField label={t("checkout.firstName")} value={firstName} onChange={(e) => setFirstName(e.target.value)} required />
+                    <FormField label={t("checkout.lastName")} value={lastName} onChange={(e) => setLastName(e.target.value)} required />
+                </div>
                 <FormField label={t("account.email")} type="email" placeholder="you@email.com" value={email} onChange={(e) => setEmail(e.target.value)} required />
                 <FormField
                     label={t("account.password")}

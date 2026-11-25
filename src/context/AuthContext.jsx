@@ -23,11 +23,11 @@ export function AuthProvider({ children }) {
         return () => subscription.subscription.unsubscribe();
     }, []);
 
-    async function signUp(email, password, fullName) {
+    async function signUp(email, password, firstName, lastName) {
         const { error } = await supabase.auth.signUp({
             email,
             password,
-            options: { data: { full_name: fullName } },
+            options: { data: { first_name: firstName, last_name: lastName } },
         });
         if (error) throw error;
     }
@@ -41,8 +41,8 @@ export function AuthProvider({ children }) {
         await supabase.auth.signOut();
     }
 
-    async function updateProfile(fullName) {
-        const { data, error } = await supabase.auth.updateUser({ data: { full_name: fullName } });
+    async function updateProfile(updates) {
+        const { data, error } = await supabase.auth.updateUser({ data: updates });
         if (error) throw error;
         setUser(data.user);
     }
