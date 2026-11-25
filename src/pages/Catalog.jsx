@@ -4,7 +4,7 @@ import { Search } from "lucide-react";
 import { getProducts } from "../services/api";
 import { useDebounce } from "../hooks/useDebounce";
 import ProductCard from "../components/ProductCard";
-import LoadingState from "../components/LoadingState";
+import ProductCardSkeleton from "../components/ProductCardSkeleton";
 import ErrorState from "../components/ErrorState";
 
 const CATEGORY_GROUPS = {
@@ -367,7 +367,11 @@ export default function Catalog() {
                                 onRetry={() => window.location.reload()}
                             />
                         ) : !products ? (
-                            <LoadingState label="Loading products..." />
+                            <div className="grid grid-cols-2 gap-x-6 gap-y-10 md:grid-cols-3 lg:grid-cols-3">
+                                {Array.from({ length: 9 }, (_, i) => (
+                                    <ProductCardSkeleton key={i} />
+                                ))}
+                            </div>
                         ) : visibleProducts.length === 0 ? (
                             <ErrorState
                                 title="No results."

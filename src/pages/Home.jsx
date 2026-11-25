@@ -3,7 +3,7 @@ import { Link } from "react-router";
 import { Truck, RotateCcw, Package } from "lucide-react";
 import { getProducts } from "../services/api";
 import ProductCard from "../components/ProductCard";
-import LoadingState from "../components/LoadingState";
+import ProductCardSkeleton from "../components/ProductCardSkeleton";
 import ErrorState from "../components/ErrorState";
 
 const QUICK_LINKS = [
@@ -39,7 +39,16 @@ export default function Home() {
     }
 
     if (!products) {
-        return <LoadingState label="Loading..." />;
+        return (
+            <div className="animate-pulse">
+                <div className="h-[70vh] bg-surface" />
+                <div className="grid grid-cols-2 gap-x-6 gap-y-10 px-6 py-14 md:grid-cols-4">
+                    {Array.from({ length: 4 }, (_, i) => (
+                        <ProductCardSkeleton key={i} />
+                    ))}
+                </div>
+            </div>
+        );
     }
 
     const featured = products.filter((p) => p.isNew).slice(0, 4);

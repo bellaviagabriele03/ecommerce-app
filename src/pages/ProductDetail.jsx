@@ -4,7 +4,7 @@ import { getProductBySlug, getProducts } from "../services/api";
 import { formatPrice } from "../utils/formatPrice";
 import { useCart } from "../hooks/useCart";
 import { useToast } from "../hooks/useToast";
-import LoadingState from "../components/LoadingState";
+import ProductDetailSkeleton from "../components/ProductDetailSkeleton";
 import ErrorState from "../components/ErrorState";
 import ProductCard from "../components/ProductCard";
 
@@ -62,7 +62,7 @@ function ProductDetailView({ slug }) {
     }
 
     if (!product) {
-        return <LoadingState label="Loading product..." />;
+        return <ProductDetailSkeleton />;
     }
 
     const categoryLabel = CATEGORY_LABELS[product.category] ?? product.category;

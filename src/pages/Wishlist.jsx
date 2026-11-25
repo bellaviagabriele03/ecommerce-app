@@ -4,7 +4,7 @@ import { Heart } from "lucide-react";
 import { getProducts } from "../services/api";
 import { useWishlist } from "../hooks/useWishlist";
 import ProductCard from "../components/ProductCard";
-import LoadingState from "../components/LoadingState";
+import ProductCardSkeleton from "../components/ProductCardSkeleton";
 import ErrorState from "../components/ErrorState";
 
 export default function Wishlist() {
@@ -33,7 +33,13 @@ export default function Wishlist() {
     }
 
     if (!products) {
-        return <LoadingState label="Loading wishlist..." />;
+        return (
+            <div className="grid grid-cols-2 gap-x-6 gap-y-10 px-6 py-8 md:grid-cols-3 lg:grid-cols-4">
+                {Array.from({ length: 4 }, (_, i) => (
+                    <ProductCardSkeleton key={i} />
+                ))}
+            </div>
+        );
     }
 
     const wishlisted = products.filter((p) => ids.includes(p.id));
