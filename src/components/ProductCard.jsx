@@ -2,6 +2,7 @@ import { Link } from "react-router";
 import { Heart } from "lucide-react";
 import { formatPrice } from "../utils/formatPrice";
 import { useWishlist } from "../hooks/useWishlist";
+import { useToast } from "../hooks/useToast";
 
 const CATEGORY_LABELS = {
     sneakers: "Sneakers",
@@ -14,6 +15,7 @@ const CATEGORY_LABELS = {
 export default function ProductCard({ product }) {
     const { id, slug, name, price, category, image, isNew, inStock } = product;
     const { isWishlisted, toggle } = useWishlist();
+    const { addToast } = useToast();
     const wishlisted = isWishlisted(id);
 
     return (
@@ -23,6 +25,14 @@ export default function ProductCard({ product }) {
                     onClick={(e) => {
                         e.preventDefault();
                         toggle(id);
+                        if (!wishlisted) {
+                            addToast({
+                                title: "Added to your wishlist",
+                                message: name,
+                                actionTo: "/wishlist",
+                                actionLabel: "View wishlist →",
+                            });
+                        }
                     }}
                     aria-label={wishlisted ? "Remove from wishlist" : "Add to wishlist"}
                     className="absolute bottom-3 right-3 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-canvas/70 text-primary transition-colors hover:bg-canvas"
