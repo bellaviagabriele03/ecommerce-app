@@ -16,6 +16,10 @@ const CATEGORY_LABELS = {
 
 export default function ProductDetail() {
     const { slug } = useParams();
+    return <ProductDetailView key={slug} slug={slug} />;
+}
+
+function ProductDetailView({ slug }) {
     const [product, setProduct] = useState(null);
     const [related, setRelated] = useState([]);
     const [error, setError] = useState(null);
@@ -23,9 +27,6 @@ export default function ProductDetail() {
 
     useEffect(() => {
         let cancelled = false;
-        setProduct(null);
-        setError(null);
-        setSelectedSize(null);
 
         getProductBySlug(slug)
             .then((data) => {

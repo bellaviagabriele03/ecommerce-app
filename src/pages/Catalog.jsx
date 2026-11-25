@@ -53,8 +53,6 @@ export default function Catalog() {
 
     useEffect(() => {
         let cancelled = false;
-        setProducts(null);
-        setError(null);
 
         getProducts()
             .then((data) => {
