@@ -4,18 +4,11 @@ import { getProductBySlug, getProducts } from "../services/api";
 import { formatPrice } from "../utils/formatPrice";
 import { useCart } from "../hooks/useCart";
 import { useToast } from "../hooks/useToast";
+import { useLocale } from "../hooks/useLocale";
 import ProductDetailSkeleton from "../components/ProductDetailSkeleton";
 import ErrorState from "../components/ErrorState";
 import ProductCard from "../components/ProductCard";
 import { useDocumentTitle } from "../hooks/useDocumentTitle";
-
-const CATEGORY_LABELS = {
-    sneakers: "Sneakers",
-    hoodie: "Hoodie",
-    tshirt: "T-Shirt",
-    cap: "Cap",
-    accessory: "Accessory",
-};
 
 export default function ProductDetail() {
     const { slug } = useParams();
@@ -25,6 +18,7 @@ export default function ProductDetail() {
 function ProductDetailView({ slug }) {
     const { addItem } = useCart();
     const { addToast } = useToast();
+    const { t, locale } = useLocale();
     const [product, setProduct] = useState(null);
     const [related, setRelated] = useState([]);
     const [error, setError] = useState(null);
@@ -57,8 +51,8 @@ function ProductDetailView({ slug }) {
     if (error) {
         return (
             <ErrorState
-                title="Product not found."
-                message="This piece may have sold out of our records. Head back to the catalog."
+                title={t("product.notFoundTitle")}
+                message={t("product.notFoundMessage")}
             />
         );
     }
@@ -67,13 +61,15 @@ function ProductDetailView({ slug }) {
         return <ProductDetailSkeleton />;
     }
 
-    const categoryLabel = CATEGORY_LABELS[product.category] ?? product.category;
+    const categoryLabel = t(`category.${product.category}`);
     const effectiveSize = selectedSize ?? product.sizes[0];
+    const description = locale === "en" ? product.descriptionEn ?? product.description : product.description;
+    const sizeLabel = (size) => (size === "Unica" && locale === "en" ? "One Size" : size);
 
     return (
         <div className="px-6 py-8">
             <p className="text-sm text-secondary">
-                <Link to="/" className="hover:text-primary">Home</Link> /{" "}
+                <Link to="/" className="hover:text-primary">{t("common.home")}</Link> /{" "}
                 <Link to={`/catalog?category=${product.category}`} className="hover:text-primary">{categoryLabel}</Link> /{" "}
                 {product.name}
             </p>
@@ -82,11 +78,11 @@ function ProductDetailView({ slug }) {
                 <div className="relative aspect-square overflow-hidden bg-surface">
                     {!product.inStock ? (
                         <span className="absolute left-3 top-3 bg-error px-2 py-1 text-xs font-bold uppercase tracking-wide text-primary">
-                            Sold out
+                            {t("product.soldOut")}
                         </span>
                     ) : product.isNew ? (
                         <span className="absolute left-3 top-3 bg-newdrop px-2 py-1 text-xs font-bold uppercase tracking-wide text-canvas">
-                            New drop
+                            {t("product.newDrop")}
                         </span>
                     ) : null}
                     <img src={product.image} alt={product.name} className="h-full w-full object-cover" />
@@ -99,15 +95,15 @@ function ProductDetailView({ slug }) {
                     <h1 className="font-display text-4xl uppercase text-primary">{product.name}</h1>
 
                     <div className="mt-2 flex items-center justify-between">
-                        <p className="text-xl font-semibold text-primary">{formatPrice(product.price)}</p>
+                        <p className="text-xl font-semibold text-primary">{formatPrice(product.price, locale)}</p>
                         <p className="text-sm text-secondary">
-                            {product.inStock ? "In stock · Ready to ship" : "Out of stock"}
+                            {product.inStock ? t("product.inStock") : t("product.outOfStock")}
                         </p>
                     </div>
 
                     <hr className="my-6 border-surface" />
 
-                    <p className="text-sm font-medium text-primary">Select size</p>
+                    <p className="text-sm font-medium text-primary">{t("product.selectSize")}</p>
                     <div className="mt-3 grid grid-cols-4 gap-2">
                         {product.sizes.map((size) => (
                             <button
@@ -119,7 +115,7 @@ function ProductDetailView({ slug }) {
                                         : "border-surface text-primary hover:border-secondary"
                                 }`}
                             >
-                                {size}
+                                {sizeLabel(size)}
                             </button>
                         ))}
                     </div>
@@ -129,32 +125,32 @@ function ProductDetailView({ slug }) {
                         onClick={() => {
                             addItem(product, effectiveSize);
                             addToast({
-                                title: "Added to your bag",
-                                message: `${product.name} · ${categoryLabel} · ${effectiveSize}`,
+                                title: t("toast.addedToBag"),
+                                message: `${product.name} · ${categoryLabel} · ${sizeLabel(effectiveSize)}`,
                                 actionTo: "/cart",
-                                actionLabel: "View bag →",
+                                actionLabel: t("toast.viewBag"),
                             });
                         }}
                         className="mt-6 w-full bg-action py-4 text-sm font-bold uppercase tracking-wide text-primary transition-colors hover:bg-action-hover disabled:cursor-not-allowed disabled:bg-surface disabled:text-secondary"
                     >
                         {product.inStock
-                            ? `Add to bag — ${formatPrice(product.price)}`
-                            : "Sold out"}
+                            ? t("product.addToBag", { price: formatPrice(product.price, locale) })
+                            : t("product.soldOut")}
                     </button>
 
                     <hr className="my-6 border-surface" />
 
-                    <p className="text-sm font-semibold uppercase tracking-wide text-primary">Built for your daily rotation</p>
-                    <p className="mt-2 text-sm text-secondary">{product.description}</p>
+                    <p className="text-sm font-semibold uppercase tracking-wide text-primary">{t("product.builtForRotation")}</p>
+                    <p className="mt-2 text-sm text-secondary">{description}</p>
                     <p className="mt-4 text-xs text-secondary">
-                        SKU: SN-{product.id.toString().padStart(3, "0")} · Easy 14-day returns
+                        {t("product.sku", { id: product.id.toString().padStart(3, "0") })}
                     </p>
                 </div>
             </div>
 
             {related.length > 0 ? (
                 <div className="mt-16">
-                    <h2 className="font-display text-3xl uppercase text-primary">Complete the rotation</h2>
+                    <h2 className="font-display text-3xl uppercase text-primary">{t("product.completeRotation")}</h2>
                     <div className="mt-6 grid grid-cols-2 gap-6 sm:w-1/2">
                         {related.map((p) => (
                             <ProductCard key={p.id} product={p} />

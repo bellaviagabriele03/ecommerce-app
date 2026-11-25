@@ -3,19 +3,13 @@ import { Heart } from "lucide-react";
 import { formatPrice } from "../utils/formatPrice";
 import { useWishlist } from "../hooks/useWishlist";
 import { useToast } from "../hooks/useToast";
-
-const CATEGORY_LABELS = {
-    sneakers: "Sneakers",
-    hoodie: "Hoodie",
-    tshirt: "T-Shirt",
-    cap: "Cap",
-    accessory: "Accessory",
-};
+import { useLocale } from "../hooks/useLocale";
 
 export default function ProductCard({ product }) {
     const { id, slug, name, price, category, image, isNew, inStock } = product;
     const { isWishlisted, toggle } = useWishlist();
     const { addToast } = useToast();
+    const { t, locale } = useLocale();
     const wishlisted = isWishlisted(id);
 
     return (
@@ -27,25 +21,25 @@ export default function ProductCard({ product }) {
                         toggle(id);
                         if (!wishlisted) {
                             addToast({
-                                title: "Added to your wishlist",
+                                title: t("toast.addedToWishlist"),
                                 message: name,
                                 actionTo: "/wishlist",
-                                actionLabel: "View wishlist →",
+                                actionLabel: t("toast.viewWishlist"),
                             });
                         }
                     }}
-                    aria-label={wishlisted ? "Remove from wishlist" : "Add to wishlist"}
+                    aria-label={wishlisted ? t("common.removeFromWishlist") : t("common.addToWishlist")}
                     className="absolute bottom-3 right-3 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-canvas/70 text-primary transition-colors hover:bg-canvas"
                 >
                     <Heart className={`h-4 w-4 ${wishlisted ? "fill-action text-action" : ""}`} />
                 </button>
                 {!inStock ? (
                     <span className="absolute left-3 top-3 bg-error px-2 py-1 text-xs font-bold uppercase tracking-wide text-primary">
-                        Sold out
+                        {t("product.soldOut")}
                     </span>
                 ) : isNew ? (
                     <span className="absolute left-3 top-3 bg-newdrop px-2 py-1 text-xs font-bold uppercase tracking-wide text-canvas">
-                        New drop
+                        {t("product.newDrop")}
                     </span>
                 ) : null}
                 <img
@@ -57,8 +51,8 @@ export default function ProductCard({ product }) {
             </div>
             <div className="mt-3 space-y-1">
                 <h3 className="font-medium text-primary">{name}</h3>
-                <p className="text-sm text-secondary">{CATEGORY_LABELS[category] ?? category}</p>
-                <p className="font-semibold text-primary">{formatPrice(price)}</p>
+                <p className="text-sm text-secondary">{t(`category.${category}`)}</p>
+                <p className="font-semibold text-primary">{formatPrice(price, locale)}</p>
             </div>
         </Link>
     );

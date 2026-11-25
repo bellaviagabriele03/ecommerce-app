@@ -3,6 +3,7 @@ import { Link, useSearchParams } from "react-router";
 import { Search } from "lucide-react";
 import { getProducts } from "../services/api";
 import { useDebounce } from "../hooks/useDebounce";
+import { useLocale } from "../hooks/useLocale";
 import ProductCard from "../components/ProductCard";
 import ProductCardSkeleton from "../components/ProductCardSkeleton";
 import ErrorState from "../components/ErrorState";
@@ -18,38 +19,30 @@ const CATEGORY_GROUPS = {
     accessories: ["cap", "accessory"],
 };
 
-const CATEGORY_FACETS = [
-    { key: null, label: "All products" },
-    { key: "sneakers", label: "Sneakers" },
-    { key: "hoodie", label: "Hoodies" },
-    { key: "tshirt", label: "Tees" },
-    { key: "cap", label: "Caps" },
-    { key: "accessory", label: "Accessories" },
-];
-
-const HEADERS = {
-    sneakers: { eyebrow: "FOOTWEAR", title: "Sneakers" },
-    hoodie: { eyebrow: "APPAREL", title: "Hoodies" },
-    tshirt: { eyebrow: "APPAREL", title: "Tees" },
-    cap: { eyebrow: "FINISHING TOUCHES", title: "Caps" },
-    accessory: { eyebrow: "FINISHING TOUCHES", title: "Accessories" },
-    clothing: { eyebrow: "APPAREL", title: "Clothing" },
-    accessories: { eyebrow: "FINISHING TOUCHES", title: "Accessories" },
-    isNew: { eyebrow: "FRESH IN THE ROTATION", title: "New drops" },
-    default: { eyebrow: "CURATED FOR THE EVERYDAY", title: "The Rotation" },
-};
+function getCategoryFacets(t) {
+    return [
+        { key: null, labelKey: "catalog.allProducts" },
+        { key: "sneakers", labelKey: "nav.sneakers" },
+        { key: "hoodie", labelKey: "catalog.title.hoodie" },
+        { key: "tshirt", labelKey: "catalog.title.tshirt" },
+        { key: "cap", labelKey: "catalog.title.cap" },
+        { key: "accessory", labelKey: "nav.accessories" },
+    ].map((facet) => ({ ...facet, label: t(facet.labelKey) }));
+}
 
 const RATING_FACETS = [4, 3];
 
 const PAGE_SIZE = 9;
 
-const SORT_OPTIONS = [
-    { key: "newest", label: "Newest" },
-    { key: "price-asc", label: "Price: Low to High" },
-    { key: "price-desc", label: "Price: High to Low" },
-    { key: "name-asc", label: "Name: A-Z" },
-    { key: "rating-desc", label: "Rating" },
-];
+function getSortOptions(t) {
+    return [
+        { key: "newest", label: t("catalog.sortNewest") },
+        { key: "price-asc", label: t("catalog.sortPriceAsc") },
+        { key: "price-desc", label: t("catalog.sortPriceDesc") },
+        { key: "name-asc", label: t("catalog.sortNameAsc") },
+        { key: "rating-desc", label: t("catalog.sortRating") },
+    ];
+}
 
 function sortProducts(products, sortKey) {
     const sorted = [...products];
@@ -104,6 +97,7 @@ function filterProducts(products, searchParams) {
 }
 
 export default function Catalog() {
+    const { t } = useLocale();
     const [searchParams, setSearchParams] = useSearchParams();
     const [products, setProducts] = useState(null);
     const [error, setError] = useState(null);
@@ -119,8 +113,14 @@ export default function Catalog() {
         searchParams.get("maxPrice") ?? ""
     );
     const debouncedMaxPrice = useDebounce(maxPriceInput, 300);
-    const header = HEADERS[isNew ? "isNew" : category] ?? HEADERS.default;
+    const headerKey = isNew ? "isNew" : (category ?? "default");
+    const header = {
+        eyebrow: t(`catalog.eyebrow.${headerKey}`),
+        title: t(`catalog.title.${headerKey}`),
+    };
     useDocumentTitle(header.title);
+    const categoryFacets = getCategoryFacets(t);
+    const sortOptions = getSortOptions(t);
 
     useEffect(() => {
         setSearchParams(
@@ -229,7 +229,7 @@ export default function Catalog() {
     return (
         <div className="px-6 py-8">
             <p className="text-sm text-secondary">
-                <Link to="/" className="hover:text-primary">Home</Link> / {header.title}
+                <Link to="/" className="hover:text-primary">{t("common.home")}</Link> / {header.title}
             </p>
 
             <div className="mt-4 flex flex-wrap items-end justify-between gap-2">
@@ -237,24 +237,21 @@ export default function Catalog() {
                     <p className="text-sm font-semibold uppercase tracking-wide text-action">{header.eyebrow}</p>
                     <h1 className="font-display text-5xl uppercase text-primary">{header.title}</h1>
                 </div>
-                {products ? (
-                    <p className="text-sm text-secondary">{visibleProducts.length} pieces</p>
-                ) : null}
             </div>
 
             <div className="mt-10 grid grid-cols-1 gap-10 lg:grid-cols-[220px_1fr]">
                 <aside className="space-y-8">
                     <div>
-                        <p className="text-xs font-semibold uppercase tracking-wide text-secondary">Category</p>
+                        <p className="text-xs font-semibold uppercase tracking-wide text-secondary">{t("catalog.category")}</p>
                         <ul className="mt-3 flex flex-wrap gap-2 lg:block lg:space-y-1">
-                            {CATEGORY_FACETS.map((facet) => {
+                            {categoryFacets.map((facet) => {
                                 const count = facet.key
                                     ? products?.filter((p) => p.category === facet.key).length ?? 0
                                     : products?.length ?? 0;
                                 const active = (facet.key ?? null) === (category ?? null) && !isNew;
 
                                 return (
-                                    <li key={facet.label}>
+                                    <li key={facet.labelKey}>
                                         <button
                                             onClick={() => selectCategory(facet.key)}
                                             className={`flex items-center gap-2 rounded-full px-3 py-2 text-sm transition-colors lg:w-full lg:justify-between lg:rounded-none ${
@@ -274,14 +271,14 @@ export default function Catalog() {
 
                     <div>
                         <div className="flex items-center justify-between">
-                            <p className="text-xs font-semibold uppercase tracking-wide text-secondary">Price range</p>
+                            <p className="text-xs font-semibold uppercase tracking-wide text-secondary">{t("catalog.priceRange")}</p>
                             <p className="text-xs text-secondary">
                                 $0 &mdash; ${maxPriceInput || priceCeiling}
                             </p>
                         </div>
                         <input
                             type="range"
-                            aria-label="Maximum price"
+                            aria-label={t("catalog.priceRange")}
                             min={0}
                             max={priceCeiling}
                             value={maxPriceInput || priceCeiling}
@@ -291,7 +288,7 @@ export default function Catalog() {
                     </div>
 
                     <div>
-                        <p className="text-xs font-semibold uppercase tracking-wide text-secondary">Rating</p>
+                        <p className="text-xs font-semibold uppercase tracking-wide text-secondary">{t("catalog.rating")}</p>
                         <ul className="mt-3 flex flex-wrap gap-2 lg:block lg:space-y-1">
                             {RATING_FACETS.map((stars) => (
                                 <li key={stars}>
@@ -303,7 +300,7 @@ export default function Catalog() {
                                                 : "border border-surface text-secondary hover:text-primary lg:border-transparent"
                                         }`}
                                     >
-                                        {stars}★ &amp; up
+                                        {t("catalog.ratingUp", { stars })}
                                     </button>
                                 </li>
                             ))}
@@ -317,11 +314,11 @@ export default function Catalog() {
                             onChange={() => toggleParam("inStock", "true")}
                             className="accent-action"
                         />
-                        In stock only
+                        {t("catalog.inStockOnly")}
                     </label>
 
                     <button onClick={resetFilters} className="text-sm text-secondary underline hover:text-primary">
-                        Reset filters
+                        {t("common.resetFilters")}
                     </button>
                 </aside>
 
@@ -333,7 +330,7 @@ export default function Catalog() {
                                 type="search"
                                 value={queryInput}
                                 onChange={(e) => setQueryInput(e.target.value)}
-                                placeholder="Search products"
+                                placeholder={t("catalog.searchPlaceholder")}
                                 className="search-bar w-full py-2 pl-9 pr-3 text-sm text-primary placeholder-secondary outline-none focus:ring-1 focus:ring-action"
                             />
                         </div>
@@ -349,9 +346,9 @@ export default function Catalog() {
                             }
                             className="search-bar py-2 px-3 text-sm text-primary outline-none focus:ring-1 focus:ring-action"
                         >
-                            {SORT_OPTIONS.map((option) => (
+                            {sortOptions.map((option) => (
                                 <option key={option.key} value={option.key}>
-                                    Sort: {option.label}
+                                    {option.label}
                                 </option>
                             ))}
                         </select>
@@ -359,14 +356,18 @@ export default function Catalog() {
 
                     {products && visibleProducts.length > 0 ? (
                         <p className="mt-3 text-sm text-secondary">
-                            Showing {(page - 1) * PAGE_SIZE + 1}-{Math.min(page * PAGE_SIZE, visibleProducts.length)} of {visibleProducts.length} products
+                            {t("catalog.showing", {
+                                from: (page - 1) * PAGE_SIZE + 1,
+                                to: Math.min(page * PAGE_SIZE, visibleProducts.length),
+                                total: visibleProducts.length,
+                            })}
                         </p>
                     ) : null}
 
                     <div className="mt-6">
                         {error ? (
                             <ErrorState
-                                message="We couldn't load the catalog."
+                                message={t("catalog.errorMessage")}
                                 onRetry={() => window.location.reload()}
                             />
                         ) : !products ? (
@@ -377,10 +378,10 @@ export default function Catalog() {
                             </div>
                         ) : visibleProducts.length === 0 ? (
                             <ErrorState
-                                title="No results."
-                                message="Nothing matches this selection right now."
+                                title={t("catalog.noResultsTitle")}
+                                message={t("catalog.noResultsMessage")}
                                 onRetry={resetFilters}
-                                retryLabel="Reset filters"
+                                retryLabel={t("common.resetFilters")}
                             />
                         ) : (
                             <>
@@ -397,7 +398,7 @@ export default function Catalog() {
                                             disabled={page <= 1}
                                             className="px-3 py-2 text-sm text-secondary hover:text-primary disabled:cursor-not-allowed disabled:opacity-40"
                                         >
-                                            Prev
+                                            {t("catalog.prev")}
                                         </button>
                                         {Array.from({ length: totalPages }, (_, i) => i + 1).map((n) => (
                                             <button
@@ -417,7 +418,7 @@ export default function Catalog() {
                                             disabled={page >= totalPages}
                                             className="px-3 py-2 text-sm text-secondary hover:text-primary disabled:cursor-not-allowed disabled:opacity-40"
                                         >
-                                            Next
+                                            {t("catalog.next")}
                                         </button>
                                     </div>
                                 ) : null}
