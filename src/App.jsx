@@ -1,27 +1,30 @@
+import { lazy, Suspense } from 'react'
 import { Routes, Route, Navigate } from 'react-router'
 import Layout from './components/Layout'
-import Home from './pages/Home'
-import Catalog from './pages/Catalog'
-import ProductDetails from './pages/ProductDetail'
-import Cart from './pages/Cart'
-import Wishlist from './pages/Wishlist'
-import NotFound from './pages/NotFound'
 import Info from './pages/Info'
-import CheckoutLayout from './pages/checkout/CheckoutLayout'
-import CheckoutShipping from './pages/checkout/Shipping'
-import CheckoutPayment from './pages/checkout/Payment'
-import CheckoutReview from './pages/checkout/Review'
-import OrderConfirmation from './pages/OrderConfirmation'
-import Login from './pages/account/Login'
-import Register from './pages/account/Register'
-import Orders from './pages/account/Orders'
-import Profile from './pages/account/Profile'
 import ProtectedRoute from './components/ProtectedRoute'
+import LoadingState from './components/LoadingState'
+
+const Home = lazy(() => import('./pages/Home'))
+const Catalog = lazy(() => import('./pages/Catalog'))
+const ProductDetails = lazy(() => import('./pages/ProductDetail'))
+const Cart = lazy(() => import('./pages/Cart'))
+const Wishlist = lazy(() => import('./pages/Wishlist'))
+const NotFound = lazy(() => import('./pages/NotFound'))
+const CheckoutLayout = lazy(() => import('./pages/checkout/CheckoutLayout'))
+const CheckoutShipping = lazy(() => import('./pages/checkout/Shipping'))
+const CheckoutPayment = lazy(() => import('./pages/checkout/Payment'))
+const CheckoutReview = lazy(() => import('./pages/checkout/Review'))
+const OrderConfirmation = lazy(() => import('./pages/OrderConfirmation'))
+const Login = lazy(() => import('./pages/account/Login'))
+const Register = lazy(() => import('./pages/account/Register'))
+const Orders = lazy(() => import('./pages/account/Orders'))
+const Profile = lazy(() => import('./pages/account/Profile'))
 
 function App() {
 
   return (
-    <>
+    <Suspense fallback={<LoadingState label="Loading..." />}>
       <Routes>
         <Route element={<Layout />}>
           <Route path="/" element={<Home />} />
@@ -72,7 +75,7 @@ function App() {
           <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>
-    </>
+    </Suspense>
   )
 }
 
