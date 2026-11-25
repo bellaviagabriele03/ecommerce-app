@@ -7,12 +7,20 @@ import ErrorState from "../components/ErrorState";
 
 const CATEGORY_GROUPS = {
     sneakers: ["sneakers"],
+    hoodie: ["hoodie"],
+    tshirt: ["tshirt"],
+    cap: ["cap"],
+    accessory: ["accessory"],
     clothing: ["hoodie", "tshirt"],
     accessories: ["cap", "accessory"],
 };
 
 const HEADERS = {
     sneakers: { eyebrow: "FOOTWEAR", title: "Sneakers" },
+    hoodie: { eyebrow: "APPAREL", title: "Hoodies" },
+    tshirt: { eyebrow: "APPAREL", title: "Tees" },
+    cap: { eyebrow: "FINISHING TOUCHES", title: "Caps" },
+    accessory: { eyebrow: "FINISHING TOUCHES", title: "Accessories" },
     clothing: { eyebrow: "APPAREL", title: "Clothing" },
     accessories: { eyebrow: "FINISHING TOUCHES", title: "Accessories" },
     isNew: { eyebrow: "FRESH IN THE ROTATION", title: "New drops" },
