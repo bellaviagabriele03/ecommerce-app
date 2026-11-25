@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { NavLink, useNavigate } from "react-router";
 import { Search, User, ShoppingBag } from "lucide-react";
+import { useCart } from "../hooks/useCart";
 
 const links = [
     { name: "New drops", path: "/catalog?isNew=true" },
@@ -15,6 +16,7 @@ const navLinkClass = ({ isActive }) =>
 export default function Navbar() {
     const navigate = useNavigate();
     const [query, setQuery] = useState("");
+    const { count } = useCart();
 
     function handleSearch(e) {
         e.preventDefault();
@@ -57,6 +59,11 @@ export default function Navbar() {
                     </NavLink>
                     <NavLink to="/cart" aria-label="Cart" className="relative">
                         <ShoppingBag className="h-5 w-5" />
+                        {count > 0 ? (
+                            <span className="absolute -right-2 -top-2 flex h-4 w-4 items-center justify-center rounded-full bg-action text-[10px] font-bold text-primary">
+                                {count}
+                            </span>
+                        ) : null}
                     </NavLink>
                 </div>
             </nav>
