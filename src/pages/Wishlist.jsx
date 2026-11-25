@@ -6,8 +6,10 @@ import { useWishlist } from "../hooks/useWishlist";
 import ProductCard from "../components/ProductCard";
 import ProductCardSkeleton from "../components/ProductCardSkeleton";
 import ErrorState from "../components/ErrorState";
+import { useDocumentTitle } from "../hooks/useDocumentTitle";
 
 export default function Wishlist() {
+    useDocumentTitle("Wishlist");
     const { ids } = useWishlist();
     const [products, setProducts] = useState(null);
     const [error, setError] = useState(null);

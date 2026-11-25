@@ -3,8 +3,10 @@ import { Link, useNavigate } from "react-router";
 import { ArrowRight } from "lucide-react";
 import { useAuth } from "../../hooks/useAuth";
 import FormField from "../../components/FormField";
+import { useDocumentTitle } from "../../hooks/useDocumentTitle";
 
 export default function Login() {
+    useDocumentTitle("Log in");
     const navigate = useNavigate();
     const { signIn } = useAuth();
     const [email, setEmail] = useState("");

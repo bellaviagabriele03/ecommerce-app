@@ -5,6 +5,7 @@ import { getProducts } from "../services/api";
 import ProductCard from "../components/ProductCard";
 import ProductCardSkeleton from "../components/ProductCardSkeleton";
 import ErrorState from "../components/ErrorState";
+import { useDocumentTitle } from "../hooks/useDocumentTitle";
 
 const QUICK_LINKS = [
     { label: "Sneakers", category: "sneakers" },
@@ -15,6 +16,7 @@ const QUICK_LINKS = [
 ];
 
 export default function Home() {
+    useDocumentTitle();
     const [products, setProducts] = useState(null);
     const [error, setError] = useState(null);
 

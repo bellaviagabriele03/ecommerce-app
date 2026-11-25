@@ -7,6 +7,7 @@ import { useToast } from "../hooks/useToast";
 import ProductDetailSkeleton from "../components/ProductDetailSkeleton";
 import ErrorState from "../components/ErrorState";
 import ProductCard from "../components/ProductCard";
+import { useDocumentTitle } from "../hooks/useDocumentTitle";
 
 const CATEGORY_LABELS = {
     sneakers: "Sneakers",
@@ -28,6 +29,7 @@ function ProductDetailView({ slug }) {
     const [related, setRelated] = useState([]);
     const [error, setError] = useState(null);
     const [selectedSize, setSelectedSize] = useState(null);
+    useDocumentTitle(product?.name);
 
     useEffect(() => {
         let cancelled = false;

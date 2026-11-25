@@ -2,12 +2,14 @@ import { Link } from "react-router";
 import { ShoppingBag } from "lucide-react";
 import { useCart } from "../hooks/useCart";
 import { formatPrice } from "../utils/formatPrice";
+import { useDocumentTitle } from "../hooks/useDocumentTitle";
 
 const FREE_SHIPPING_THRESHOLD = 150;
 const FLAT_SHIPPING = 9.95;
 const TAX_RATE = 0.08;
 
 export default function Cart() {
+    useDocumentTitle("Your bag");
     const { items, count, subtotal, removeItem, increaseQty, decreaseQty } = useCart();
 
     if (items.length === 0) {
@@ -74,7 +76,7 @@ export default function Cart() {
                     {items.map((item) => (
                         <li key={`${item.id}-${item.size}`} className="flex gap-4 py-6">
                             <Link to={`/catalog/${item.slug}`} className="h-24 w-24 shrink-0 overflow-hidden bg-surface">
-                                <img src={item.image} alt={item.name} className="h-full w-full object-cover" />
+                                <img src={item.image} alt={item.name} loading="lazy" className="h-full w-full object-cover" />
                             </Link>
                             <div className="flex flex-1 flex-col justify-between">
                                 <div className="flex items-start justify-between gap-4">

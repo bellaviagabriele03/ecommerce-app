@@ -2,8 +2,10 @@ import { useState } from "react";
 import { Link } from "react-router";
 import { useAuth } from "../../hooks/useAuth";
 import FormField from "../../components/FormField";
+import { useDocumentTitle } from "../../hooks/useDocumentTitle";
 
 export default function Profile() {
+    useDocumentTitle("Profile");
     const { user, updateProfile, signOut } = useAuth();
     const [fullName, setFullName] = useState(user.user_metadata?.full_name ?? "");
     const [status, setStatus] = useState(null);

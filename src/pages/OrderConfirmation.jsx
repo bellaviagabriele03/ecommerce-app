@@ -1,6 +1,7 @@
 import { Navigate, Link, useLocation } from "react-router";
 import { CheckCircle2, Package } from "lucide-react";
 import { formatPrice } from "../utils/formatPrice";
+import { useDocumentTitle } from "../hooks/useDocumentTitle";
 
 function estimateDeliveryRange() {
     const start = new Date();
@@ -12,6 +13,7 @@ function estimateDeliveryRange() {
 }
 
 export default function OrderConfirmation() {
+    useDocumentTitle("Order confirmed");
     const { state } = useLocation();
     const order = state?.order;
 
@@ -54,7 +56,7 @@ export default function OrderConfirmation() {
                 {order.items.map((item) => (
                     <li key={`${item.id}-${item.size}`} className="flex gap-4 py-4">
                         <div className="h-16 w-16 shrink-0 overflow-hidden bg-surface">
-                            <img src={item.image} alt={item.name} className="h-full w-full object-cover" />
+                            <img src={item.image} alt={item.name} loading="lazy" className="h-full w-full object-cover" />
                         </div>
                         <div className="flex-1">
                             <p className="font-medium text-primary">{item.name}</p>

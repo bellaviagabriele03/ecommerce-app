@@ -3,8 +3,10 @@ import { Link, useNavigate } from "react-router";
 import { ArrowRight } from "lucide-react";
 import { useAuth } from "../../hooks/useAuth";
 import FormField from "../../components/FormField";
+import { useDocumentTitle } from "../../hooks/useDocumentTitle";
 
 export default function Register() {
+    useDocumentTitle("Create an account");
     const navigate = useNavigate();
     const { signUp } = useAuth();
     const [fullName, setFullName] = useState("");

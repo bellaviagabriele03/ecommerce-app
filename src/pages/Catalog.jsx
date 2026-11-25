@@ -6,6 +6,7 @@ import { useDebounce } from "../hooks/useDebounce";
 import ProductCard from "../components/ProductCard";
 import ProductCardSkeleton from "../components/ProductCardSkeleton";
 import ErrorState from "../components/ErrorState";
+import { useDocumentTitle } from "../hooks/useDocumentTitle";
 
 const CATEGORY_GROUPS = {
     sneakers: ["sneakers"],
@@ -119,6 +120,7 @@ export default function Catalog() {
     );
     const debouncedMaxPrice = useDebounce(maxPriceInput, 300);
     const header = HEADERS[isNew ? "isNew" : category] ?? HEADERS.default;
+    useDocumentTitle(header.title);
 
     useEffect(() => {
         setSearchParams(
@@ -279,6 +281,7 @@ export default function Catalog() {
                         </div>
                         <input
                             type="range"
+                            aria-label="Maximum price"
                             min={0}
                             max={priceCeiling}
                             value={maxPriceInput || priceCeiling}

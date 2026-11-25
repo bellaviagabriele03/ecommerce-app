@@ -38,6 +38,7 @@ export default function Navbar() {
                     <button
                         onClick={() => setMenuOpen((open) => !open)}
                         aria-label={menuOpen ? "Close menu" : "Open menu"}
+                        aria-expanded={menuOpen}
                         className="md:hidden"
                     >
                         {menuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
@@ -80,7 +81,7 @@ export default function Navbar() {
                             </span>
                         ) : null}
                     </NavLink>
-                    <NavLink to="/cart" aria-label="Cart" className="relative">
+                    <NavLink to="/cart" aria-label={`Cart${count > 0 ? ` (${count} items)` : ""}`} className="relative">
                         <ShoppingBag className="h-5 w-5" />
                         {count > 0 ? (
                             <span className="absolute -right-2 -top-2 flex h-4 w-4 items-center justify-center rounded-full bg-action text-[10px] font-bold text-primary">

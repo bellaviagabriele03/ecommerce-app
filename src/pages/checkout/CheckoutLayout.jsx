@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Navigate, Outlet, useLocation } from "react-router";
 import { Check } from "lucide-react";
 import { useCart } from "../../hooks/useCart";
+import { useDocumentTitle } from "../../hooks/useDocumentTitle";
 
 const STEPS = [
     { key: "shipping", label: "Shipping" },
@@ -10,6 +11,7 @@ const STEPS = [
 ];
 
 export default function CheckoutLayout() {
+    useDocumentTitle("Checkout");
     const { items } = useCart();
     const location = useLocation();
     const [shipping, setShipping] = useState(null);

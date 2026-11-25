@@ -5,8 +5,10 @@ import { getOrdersForUser } from "../../services/ordersApi";
 import { formatPrice } from "../../utils/formatPrice";
 import LoadingState from "../../components/LoadingState";
 import ErrorState from "../../components/ErrorState";
+import { useDocumentTitle } from "../../hooks/useDocumentTitle";
 
 export default function Orders() {
+    useDocumentTitle("My orders");
     const [orders, setOrders] = useState(null);
     const [error, setError] = useState(null);
 
