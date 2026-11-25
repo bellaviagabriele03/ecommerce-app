@@ -244,7 +244,7 @@ export default function Catalog() {
                 <aside className="space-y-8">
                     <div>
                         <p className="text-xs font-semibold uppercase tracking-wide text-secondary">Category</p>
-                        <ul className="mt-3 space-y-1">
+                        <ul className="mt-3 flex flex-wrap gap-2 lg:block lg:space-y-1">
                             {CATEGORY_FACETS.map((facet) => {
                                 const count = facet.key
                                     ? products?.filter((p) => p.category === facet.key).length ?? 0
@@ -255,14 +255,14 @@ export default function Catalog() {
                                     <li key={facet.label}>
                                         <button
                                             onClick={() => selectCategory(facet.key)}
-                                            className={`flex w-full items-center justify-between px-3 py-2 text-sm transition-colors ${
+                                            className={`flex items-center gap-2 rounded-full px-3 py-2 text-sm transition-colors lg:w-full lg:justify-between lg:rounded-none ${
                                                 active
                                                     ? "border border-action text-action"
-                                                    : "border border-transparent text-secondary hover:text-primary"
+                                                    : "border border-surface text-secondary hover:text-primary lg:border-transparent"
                                             }`}
                                         >
                                             <span>{facet.label}</span>
-                                            <span>{count}</span>
+                                            <span className="hidden lg:inline">{count}</span>
                                         </button>
                                     </li>
                                 );
@@ -289,15 +289,15 @@ export default function Catalog() {
 
                     <div>
                         <p className="text-xs font-semibold uppercase tracking-wide text-secondary">Rating</p>
-                        <ul className="mt-3 space-y-1">
+                        <ul className="mt-3 flex flex-wrap gap-2 lg:block lg:space-y-1">
                             {RATING_FACETS.map((stars) => (
                                 <li key={stars}>
                                     <button
                                         onClick={() => toggleParam("rating", stars)}
-                                        className={`flex w-full items-center px-3 py-2 text-sm transition-colors ${
+                                        className={`flex items-center rounded-full px-3 py-2 text-sm transition-colors lg:w-full lg:rounded-none ${
                                             rating === stars
                                                 ? "border border-action text-action"
-                                                : "border border-transparent text-secondary hover:text-primary"
+                                                : "border border-surface text-secondary hover:text-primary lg:border-transparent"
                                         }`}
                                     >
                                         {stars}★ &amp; up
