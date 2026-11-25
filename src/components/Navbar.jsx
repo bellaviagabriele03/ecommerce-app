@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { NavLink, useNavigate } from "react-router";
-import { Search, User, ShoppingBag } from "lucide-react";
+import { Search, User, ShoppingBag, Heart } from "lucide-react";
 import { useCart } from "../hooks/useCart";
 
 const links = [
@@ -54,6 +54,9 @@ export default function Navbar() {
                             className="search-bar w-48 py-2 pl-9 pr-3 text-sm text-primary placeholder-secondary outline-none focus:ring-1 focus:ring-action md:w-64"
                         />
                     </form>
+                    <NavLink to="/wishlist" aria-label="Wishlist" className="hidden sm:block">
+                        <Heart className="h-5 w-5" />
+                    </NavLink>
                     <NavLink to="/account/login" aria-label="Account">
                         <User className="h-5 w-5" />
                     </NavLink>

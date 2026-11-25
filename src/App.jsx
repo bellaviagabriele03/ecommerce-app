@@ -4,6 +4,7 @@ import Home from './pages/Home'
 import Catalog from './pages/Catalog'
 import ProductDetails from './pages/ProductDetail'
 import Cart from './pages/Cart'
+import Wishlist from './pages/Wishlist'
 import NotFound from './pages/NotFound'
 import Info from './pages/Info'
 
@@ -17,6 +18,7 @@ function App() {
           <Route path="catalog" element={<Catalog />} />
           <Route path="catalog/:slug" element={<ProductDetails />} />
           <Route path="cart" element={<Cart />} />
+          <Route path="wishlist" element={<Wishlist />} />
           <Route path="shipping-returns" element={<Info title="Shipping & returns">
             <p>Standard shipping is free on orders over $150, 3-5 business days. Returns are accepted within 14 days of delivery, unworn and in original packaging.</p>
           </Info>} />
