@@ -17,6 +17,15 @@ const CATEGORY_GROUPS = {
     accessories: ["cap", "accessory"],
 };
 
+const CATEGORY_FACETS = [
+    { key: null, label: "All products" },
+    { key: "sneakers", label: "Sneakers" },
+    { key: "hoodie", label: "Hoodies" },
+    { key: "tshirt", label: "Tees" },
+    { key: "cap", label: "Caps" },
+    { key: "accessory", label: "Accessories" },
+];
+
 const HEADERS = {
     sneakers: { eyebrow: "FOOTWEAR", title: "Sneakers" },
     hoodie: { eyebrow: "APPAREL", title: "Hoodies" },
@@ -75,6 +84,19 @@ export default function Catalog() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [debouncedQuery]);
 
+    function selectCategory(key) {
+        setSearchParams((prev) => {
+            const next = new URLSearchParams(prev);
+            next.delete("isNew");
+            if (key) {
+                next.set("category", key);
+            } else {
+                next.delete("category");
+            }
+            return next;
+        });
+    }
+
     useEffect(() => {
         let cancelled = false;
 
@@ -109,37 +131,71 @@ export default function Catalog() {
                 ) : null}
             </div>
 
-            <div className="relative mt-8 max-w-md">
-                <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-secondary" />
-                <input
-                    type="search"
-                    value={queryInput}
-                    onChange={(e) => setQueryInput(e.target.value)}
-                    placeholder="Search products"
-                    className="search-bar w-full py-2 pl-9 pr-3 text-sm text-primary placeholder-secondary outline-none focus:ring-1 focus:ring-action"
-                />
-            </div>
+            <div className="mt-10 grid grid-cols-1 gap-10 lg:grid-cols-[220px_1fr]">
+                <aside className="space-y-8">
+                    <div>
+                        <p className="text-xs font-semibold uppercase tracking-wide text-secondary">Category</p>
+                        <ul className="mt-3 space-y-1">
+                            {CATEGORY_FACETS.map((facet) => {
+                                const count = facet.key
+                                    ? products?.filter((p) => p.category === facet.key).length ?? 0
+                                    : products?.length ?? 0;
+                                const active = (facet.key ?? null) === (category ?? null) && !isNew;
 
-            <div className="mt-6">
-                {error ? (
-                    <ErrorState
-                        message="We couldn't load the catalog."
-                        onRetry={() => window.location.reload()}
-                    />
-                ) : !products ? (
-                    <LoadingState label="Loading products..." />
-                ) : visibleProducts.length === 0 ? (
-                    <ErrorState
-                        title="No results."
-                        message="Nothing matches this selection right now."
-                    />
-                ) : (
-                    <div className="grid grid-cols-2 gap-x-6 gap-y-10 md:grid-cols-3 lg:grid-cols-4">
-                        {visibleProducts.map((product) => (
-                            <ProductCard key={product.id} product={product} />
-                        ))}
+                                return (
+                                    <li key={facet.label}>
+                                        <button
+                                            onClick={() => selectCategory(facet.key)}
+                                            className={`flex w-full items-center justify-between px-3 py-2 text-sm transition-colors ${
+                                                active
+                                                    ? "border border-action text-action"
+                                                    : "border border-transparent text-secondary hover:text-primary"
+                                            }`}
+                                        >
+                                            <span>{facet.label}</span>
+                                            <span>{count}</span>
+                                        </button>
+                                    </li>
+                                );
+                            })}
+                        </ul>
                     </div>
-                )}
+                </aside>
+
+                <div>
+                    <div className="relative max-w-md">
+                        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-secondary" />
+                        <input
+                            type="search"
+                            value={queryInput}
+                            onChange={(e) => setQueryInput(e.target.value)}
+                            placeholder="Search products"
+                            className="search-bar w-full py-2 pl-9 pr-3 text-sm text-primary placeholder-secondary outline-none focus:ring-1 focus:ring-action"
+                        />
+                    </div>
+
+                    <div className="mt-6">
+                        {error ? (
+                            <ErrorState
+                                message="We couldn't load the catalog."
+                                onRetry={() => window.location.reload()}
+                            />
+                        ) : !products ? (
+                            <LoadingState label="Loading products..." />
+                        ) : visibleProducts.length === 0 ? (
+                            <ErrorState
+                                title="No results."
+                                message="Nothing matches this selection right now."
+                            />
+                        ) : (
+                            <div className="grid grid-cols-2 gap-x-6 gap-y-10 md:grid-cols-3 lg:grid-cols-3">
+                                {visibleProducts.map((product) => (
+                                    <ProductCard key={product.id} product={product} />
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                </div>
             </div>
         </div>
     );
