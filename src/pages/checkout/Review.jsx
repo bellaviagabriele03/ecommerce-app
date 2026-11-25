@@ -22,7 +22,7 @@ export default function Review() {
     const navigate = useNavigate();
     const { state } = useLocation();
     const { shipping, payment } = state ?? {};
-    const { items, subtotal, clearCart } = useCart();
+    const { items, subtotal } = useCart();
     const { user, updateProfile } = useAuth();
     const { t, locale } = useLocale();
     const promo = usePromoCode();
@@ -45,6 +45,7 @@ export default function Review() {
             items,
             shipping,
             cardLast4,
+            discount,
             subtotal: discountedSubtotal,
             shippingCost,
             tax,
@@ -64,7 +65,6 @@ export default function Review() {
             // saving order history / profile failed; still complete the purchase for the shopper
         }
 
-        clearCart();
         promo.clear();
         navigate("/order-confirmation", { state: { order } });
     }

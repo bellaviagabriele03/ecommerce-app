@@ -209,6 +209,9 @@ export const translations = {
         orderConfirmation: {
             orderConfirmed: "Order confirmed / #{number}",
             headline: "Good taste. Great choice.",
+            success: "Purchase completed successfully!",
+            continueShopping: "Continue shopping",
+            summary: "Order summary",
             thankYou: "Thanks, {firstName}. Your next rotation is on its way. We sent your receipt to {email}.",
             estimatedDelivery: "Estimated delivery: {range}",
             trackingNotice: "Standard shipping · Tracking sent when shipped",
@@ -491,6 +494,9 @@ export const translations = {
         orderConfirmation: {
             orderConfirmed: "Ordine confermato / #{number}",
             headline: "Ottimo gusto. Ottima scelta.",
+            success: "Acquisto effettuato con successo!",
+            continueShopping: "Continua lo shopping",
+            summary: "Riepilogo dei prodotti acquistati",
             thankYou: "Grazie, {firstName}. Il tuo ordine è in arrivo. Ti abbiamo inviato la ricevuta a {email}.",
             estimatedDelivery: "Consegna stimata: {range}",
             trackingNotice: "Spedizione standard · Il tracking verrà inviato alla spedizione",
