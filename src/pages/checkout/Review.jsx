@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Navigate, useNavigate, useOutletContext } from "react-router";
-import { Lock, CreditCard } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
+import { Lock, CreditCard, BadgeCheck } from "lucide-react";
 import { useCart } from "../../hooks/useCart";
 import { useAuth } from "../../hooks/useAuth";
 import { createOrder } from "../../services/ordersApi";
@@ -23,6 +24,7 @@ export default function Review() {
     const [promoInput, setPromoInput] = useState("");
     const [discountRate, setDiscountRate] = useState(0);
     const [promoError, setPromoError] = useState(null);
+    const [showPromoAccepted, setShowPromoAccepted] = useState(false);
     const [placing, setPlacing] = useState(false);
 
     if (!shipping || !payment) {
@@ -40,6 +42,8 @@ export default function Review() {
         if (rate) {
             setDiscountRate(rate);
             setPromoError(null);
+            setShowPromoAccepted(true);
+            setTimeout(() => setShowPromoAccepted(false), 1800);
         } else {
             setDiscountRate(0);
             setPromoError("Invalid code.");
@@ -72,7 +76,24 @@ export default function Review() {
     }
 
     return (
-        <div className="space-y-6">
+        <div className="relative space-y-6">
+            <AnimatePresence>
+                {showPromoAccepted ? (
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.9 }}
+                        transition={{ duration: 0.2 }}
+                        className="pointer-events-none fixed inset-0 z-50 flex items-center justify-center"
+                    >
+                        <div className="flex items-center gap-2 bg-action px-6 py-4 text-sm font-bold uppercase tracking-wide text-primary shadow-lg">
+                            <BadgeCheck className="h-5 w-5" />
+                            Discount code applied
+                        </div>
+                    </motion.div>
+                ) : null}
+            </AnimatePresence>
+
             <h2 className="font-display text-2xl uppercase text-primary">One last look.</h2>
             <p className="text-sm text-secondary">
                 Your next rotation is almost yours. Check the details below before placing your order.
