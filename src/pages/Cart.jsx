@@ -125,9 +125,9 @@ export default function Cart() {
                         <input
                             type="text"
                             placeholder={t("cart.promoCode")}
-                            className="search-bar flex-1 px-3 py-2 text-sm text-primary placeholder-secondary outline-none focus:ring-1 focus:ring-action"
+                            className="search-bar min-w-0 flex-1 px-3 py-2 text-sm text-primary placeholder-secondary outline-none focus:ring-1 focus:ring-action"
                         />
-                        <button className="border border-secondary px-4 text-sm font-semibold uppercase text-primary hover:border-primary">
+                        <button className="shrink-0 border border-secondary px-4 text-sm font-semibold uppercase text-primary hover:border-primary">
                             {t("cart.apply")}
                         </button>
                     </div>
