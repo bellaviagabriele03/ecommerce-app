@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { paymentSchema, shippingSchema } from "./checkoutSchemas";
+import { getShippingSchema, getPaymentSchema } from "./checkoutSchemas";
+
+const t = (key) => key;
+const shippingSchema = getShippingSchema(t);
+const paymentSchema = getPaymentSchema(t);
 
 const validShipping = {
     email: "alex.morgan@email.com",
@@ -14,6 +18,14 @@ const validShipping = {
     phone: "(917) 555-0128",
 };
 
+const validShippingItaly = {
+    ...validShipping,
+    city: "Milano",
+    zip: "20121",
+    country: "Italy",
+    state: "MI",
+};
+
 const validPayment = {
     cardName: "Alex Morgan",
     cardNumber: "4242 4242 4242 4242",
@@ -22,8 +34,12 @@ const validPayment = {
 };
 
 describe("shippingSchema", () => {
-    it("accepts a fully filled, valid form", () => {
+    it("accepts a fully filled, valid US form", () => {
         expect(shippingSchema.safeParse(validShipping).success).toBe(true);
+    });
+
+    it("accepts a fully filled, valid Italian form", () => {
+        expect(shippingSchema.safeParse(validShippingItaly).success).toBe(true);
     });
 
     it("rejects an invalid email", () => {
@@ -40,6 +56,16 @@ describe("shippingSchema", () => {
         const withoutApartment = { ...validShipping };
         delete withoutApartment.apartment;
         expect(shippingSchema.safeParse(withoutApartment).success).toBe(true);
+    });
+
+    it("rejects a non-5-digit CAP for Italy", () => {
+        const result = shippingSchema.safeParse({ ...validShippingItaly, zip: "123" });
+        expect(result.success).toBe(false);
+    });
+
+    it("rejects a too-short ZIP for the United States", () => {
+        const result = shippingSchema.safeParse({ ...validShipping, zip: "1" });
+        expect(result.success).toBe(false);
     });
 });
 

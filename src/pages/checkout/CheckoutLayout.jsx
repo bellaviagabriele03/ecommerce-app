@@ -2,16 +2,12 @@ import { useState } from "react";
 import { Navigate, Outlet, useLocation } from "react-router";
 import { Check } from "lucide-react";
 import { useCart } from "../../hooks/useCart";
+import { useLocale } from "../../hooks/useLocale";
 import { useDocumentTitle } from "../../hooks/useDocumentTitle";
 
-const STEPS = [
-    { key: "shipping", label: "Shipping" },
-    { key: "payment", label: "Payment" },
-    { key: "review", label: "Review" },
-];
-
 export default function CheckoutLayout() {
-    useDocumentTitle("Checkout");
+    const { t } = useLocale();
+    useDocumentTitle(t("checkout.title"));
     const { items } = useCart();
     const location = useLocation();
     const [shipping, setShipping] = useState(null);
@@ -21,14 +17,19 @@ export default function CheckoutLayout() {
         return <Navigate to="/cart" replace />;
     }
 
-    const currentStep = STEPS.findIndex((step) => location.pathname.endsWith(step.key));
+    const steps = [
+        { key: "shipping", label: t("checkout.step1") },
+        { key: "payment", label: t("checkout.step2") },
+        { key: "review", label: t("checkout.step3") },
+    ];
+    const currentStep = steps.findIndex((step) => location.pathname.endsWith(step.key));
 
     return (
         <div className="mx-auto max-w-xl px-6 py-8">
-            <h1 className="font-display text-5xl uppercase text-primary">Checkout</h1>
+            <h1 className="font-display text-5xl uppercase text-primary">{t("checkout.title")}</h1>
 
             <div className="mt-6 flex items-center gap-4">
-                {STEPS.map((step, index) => {
+                {steps.map((step, index) => {
                     const done = index < currentStep;
                     const active = index === currentStep;
                     return (
