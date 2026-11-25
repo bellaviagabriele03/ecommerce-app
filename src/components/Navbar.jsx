@@ -3,13 +3,8 @@ import { NavLink, useNavigate } from "react-router";
 import { Search, User, ShoppingBag, Heart, Menu, X } from "lucide-react";
 import { useCart } from "../hooks/useCart";
 import { useAuth } from "../hooks/useAuth";
-
-const links = [
-    { name: "New drops", path: "/catalog?isNew=true" },
-    { name: "Sneakers", path: "/catalog?category=sneakers" },
-    { name: "Clothing", path: "/catalog?category=clothing" },
-    { name: "Accessories", path: "/catalog?category=accessories" },
-];
+import { useLocale } from "../hooks/useLocale";
+import CountrySwitcher from "./CountrySwitcher";
 
 const navLinkClass = ({ isActive }) =>
     `transition-colors ${isActive ? "text-primary font-medium" : "text-secondary hover:text-primary"}`;
@@ -20,6 +15,14 @@ export default function Navbar() {
     const [menuOpen, setMenuOpen] = useState(false);
     const { count } = useCart();
     const { user } = useAuth();
+    const { t } = useLocale();
+
+    const links = [
+        { name: t("nav.newDrops"), path: "/catalog?isNew=true" },
+        { name: t("nav.sneakers"), path: "/catalog?category=sneakers" },
+        { name: t("nav.clothing"), path: "/catalog?category=clothing" },
+        { name: t("nav.accessories"), path: "/catalog?category=accessories" },
+    ];
 
     function handleSearch(e) {
         e.preventDefault();
@@ -30,14 +33,14 @@ export default function Navbar() {
     return (
         <header className="border-b border-surface text-primary">
             <div className="bg-surface py-2 text-center text-xs tracking-wide text-secondary">
-                FREE SHIPPING ON ORDERS $150+ &middot; US DELIVERY
+                {t("nav.freeShipping")}
             </div>
 
             <nav className="flex items-center justify-between gap-6 px-6 py-4">
                 <div className="flex items-center gap-10">
                     <button
                         onClick={() => setMenuOpen((open) => !open)}
-                        aria-label={menuOpen ? "Close menu" : "Open menu"}
+                        aria-label={menuOpen ? t("nav.closeMenu") : t("nav.openMenu")}
                         aria-expanded={menuOpen}
                         className="md:hidden"
                     >
@@ -62,26 +65,27 @@ export default function Navbar() {
                             type="search"
                             value={query}
                             onChange={(e) => setQuery(e.target.value)}
-                            placeholder="Search the store"
+                            placeholder={t("nav.searchPlaceholder")}
                             className="search-bar w-48 py-2 pl-9 pr-3 text-sm text-primary placeholder-secondary outline-none focus:ring-1 focus:ring-action md:w-64"
                         />
                     </form>
-                    <NavLink to="/wishlist" aria-label="Wishlist" className="hidden sm:block">
+                    <NavLink to="/wishlist" aria-label={t("nav.wishlist")} className="hidden sm:block">
                         <Heart className="h-5 w-5" />
                     </NavLink>
                     <NavLink
                         to={user ? "/account/profile" : "/account/login"}
-                        aria-label="Account"
+                        aria-label={t("nav.account")}
                         className="flex items-center gap-1"
                     >
                         <User className="h-5 w-5" />
                         {user ? (
                             <span className="hidden text-sm lg:inline">
-                                {user.user_metadata?.full_name?.split(" ")[0] ?? "Account"}
+                                {user.user_metadata?.full_name?.split(" ")[0] ?? t("nav.account")}
                             </span>
                         ) : null}
                     </NavLink>
-                    <NavLink to="/cart" aria-label={`Cart${count > 0 ? ` (${count} items)` : ""}`} className="relative">
+                    <CountrySwitcher />
+                    <NavLink to="/cart" aria-label={`${t("nav.cart")}${count > 0 ? ` (${count})` : ""}`} className="relative">
                         <ShoppingBag className="h-5 w-5" />
                         {count > 0 ? (
                             <span className="absolute -right-2 -top-2 flex h-4 w-4 items-center justify-center rounded-full bg-action text-[10px] font-bold text-primary">
@@ -100,7 +104,7 @@ export default function Navbar() {
                             type="search"
                             value={query}
                             onChange={(e) => setQuery(e.target.value)}
-                            placeholder="Search the store"
+                            placeholder={t("nav.searchPlaceholder")}
                             className="search-bar w-full py-2 pl-9 pr-3 text-sm text-primary placeholder-secondary outline-none focus:ring-1 focus:ring-action"
                         />
                     </form>
@@ -111,7 +115,7 @@ export default function Navbar() {
                             </NavLink>
                         ))}
                         <NavLink className={navLinkClass} to="/wishlist" onClick={() => setMenuOpen(false)}>
-                            Wishlist
+                            {t("nav.wishlist")}
                         </NavLink>
                     </div>
                 </div>
