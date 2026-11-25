@@ -18,7 +18,11 @@ export default function Footer() {
                     <a href="#" target="_blank" rel="noreferrer" className="hover:text-primary">{t("footer.instagram")} ↗</a>
                 </div>
             </div>
-            <div className="mt-8 flex flex-col gap-2 border-t border-surface pt-6 text-xs text-secondary sm:flex-row sm:items-center sm:justify-between">
+            <p className="mt-8 border-t border-surface pt-6 text-xs uppercase tracking-wide text-secondary">
+                {t("footer.demoNotice")}
+            </p>
+
+            <div className="mt-2 flex flex-col gap-2 text-xs text-secondary sm:flex-row sm:items-center sm:justify-between">
                 <p>{t("footer.copyright", { year: new Date().getFullYear() })}</p>
                 <div className="flex gap-4">
                     <Link to="/privacy" className="hover:text-primary">{t("footer.privacy")}</Link>
