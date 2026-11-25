@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router";
+import { Search } from "lucide-react";
 import { getProducts } from "../services/api";
+import { useDebounce } from "../hooks/useDebounce";
 import ProductCard from "../components/ProductCard";
 import LoadingState from "../components/LoadingState";
 import ErrorState from "../components/ErrorState";
@@ -30,6 +32,7 @@ const HEADERS = {
 function filterProducts(products, searchParams) {
     const category = searchParams.get("category");
     const isNew = searchParams.get("isNew") === "true";
+    const query = searchParams.get("q")?.trim().toLowerCase();
 
     return products.filter((product) => {
         if (category && !CATEGORY_GROUPS[category]?.includes(product.category)) {
@@ -38,18 +41,39 @@ function filterProducts(products, searchParams) {
         if (isNew && !product.isNew) {
             return false;
         }
+        if (query && !product.name.toLowerCase().includes(query)) {
+            return false;
+        }
         return true;
     });
 }
 
 export default function Catalog() {
-    const [searchParams] = useSearchParams();
+    const [searchParams, setSearchParams] = useSearchParams();
     const [products, setProducts] = useState(null);
     const [error, setError] = useState(null);
+    const [queryInput, setQueryInput] = useState(searchParams.get("q") ?? "");
+    const debouncedQuery = useDebounce(queryInput, 300);
 
     const category = searchParams.get("category");
     const isNew = searchParams.get("isNew") === "true";
     const header = HEADERS[isNew ? "isNew" : category] ?? HEADERS.default;
+
+    useEffect(() => {
+        setSearchParams(
+            (prev) => {
+                const next = new URLSearchParams(prev);
+                if (debouncedQuery) {
+                    next.set("q", debouncedQuery);
+                } else {
+                    next.delete("q");
+                }
+                return next;
+            },
+            { replace: true }
+        );
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [debouncedQuery]);
 
     useEffect(() => {
         let cancelled = false;
@@ -85,7 +109,18 @@ export default function Catalog() {
                 ) : null}
             </div>
 
-            <div className="mt-10">
+            <div className="relative mt-8 max-w-md">
+                <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-secondary" />
+                <input
+                    type="search"
+                    value={queryInput}
+                    onChange={(e) => setQueryInput(e.target.value)}
+                    placeholder="Search products"
+                    className="search-bar w-full py-2 pl-9 pr-3 text-sm text-primary placeholder-secondary outline-none focus:ring-1 focus:ring-action"
+                />
+            </div>
+
+            <div className="mt-6">
                 {error ? (
                     <ErrorState
                         message="We couldn't load the catalog."
