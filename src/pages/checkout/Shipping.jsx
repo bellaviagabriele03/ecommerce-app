@@ -1,9 +1,10 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useNavigate, useOutletContext } from "react-router";
+import { Link, useNavigate, useOutletContext } from "react-router";
 import FormField from "../../components/FormField";
 import { useCart } from "../../hooks/useCart";
+import { useAuth } from "../../hooks/useAuth";
 import { formatPrice } from "../../utils/formatPrice";
 
 const shippingSchema = z.object({
@@ -23,13 +24,14 @@ export default function Shipping() {
     const navigate = useNavigate();
     const { shipping, setShipping } = useOutletContext();
     const { items, subtotal } = useCart();
+    const { user } = useAuth();
     const {
         register,
         handleSubmit,
         formState: { errors },
     } = useForm({
         resolver: zodResolver(shippingSchema),
-        defaultValues: shipping ?? { country: "United States" },
+        defaultValues: shipping ?? { country: "United States", email: user?.email ?? "" },
     });
 
     function onSubmit(data) {
@@ -39,7 +41,14 @@ export default function Shipping() {
 
     return (
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-            <h2 className="font-display text-2xl uppercase text-primary">Shipping details</h2>
+            <div className="flex items-center justify-between">
+                <h2 className="font-display text-2xl uppercase text-primary">Shipping details</h2>
+                {!user ? (
+                    <Link to="/account/login" className="text-sm text-action hover:underline">
+                        Log in
+                    </Link>
+                ) : null}
+            </div>
 
             <FormField label="Email address" type="email" placeholder="you@email.com" error={errors.email?.message} {...register("email")} />
 

@@ -12,6 +12,11 @@ import CheckoutShipping from './pages/checkout/Shipping'
 import CheckoutPayment from './pages/checkout/Payment'
 import CheckoutReview from './pages/checkout/Review'
 import OrderConfirmation from './pages/OrderConfirmation'
+import Login from './pages/account/Login'
+import Register from './pages/account/Register'
+import Orders from './pages/account/Orders'
+import Profile from './pages/account/Profile'
+import ProtectedRoute from './components/ProtectedRoute'
 
 function App() {
 
@@ -31,6 +36,24 @@ function App() {
             <Route path="review" element={<CheckoutReview />} />
           </Route>
           <Route path="order-confirmation" element={<OrderConfirmation />} />
+          <Route path="account/login" element={<Login />} />
+          <Route path="account/register" element={<Register />} />
+          <Route
+            path="account/orders"
+            element={
+              <ProtectedRoute>
+                <Orders />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="account/profile"
+            element={
+              <ProtectedRoute>
+                <Profile />
+              </ProtectedRoute>
+            }
+          />
           <Route path="shipping-returns" element={<Info title="Shipping & returns">
             <p>Standard shipping is free on orders over $150, 3-5 business days. Returns are accepted within 14 days of delivery, unworn and in original packaging.</p>
           </Info>} />

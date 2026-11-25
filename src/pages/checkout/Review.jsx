@@ -2,6 +2,8 @@ import { useState } from "react";
 import { Navigate, useNavigate, useOutletContext } from "react-router";
 import { Lock, CreditCard } from "lucide-react";
 import { useCart } from "../../hooks/useCart";
+import { useAuth } from "../../hooks/useAuth";
+import { createOrder } from "../../services/ordersApi";
 import { formatPrice } from "../../utils/formatPrice";
 
 const FREE_SHIPPING_THRESHOLD = 150;
@@ -17,9 +19,11 @@ export default function Review() {
     const navigate = useNavigate();
     const { shipping, payment } = useOutletContext();
     const { items, subtotal, clearCart } = useCart();
+    const { user } = useAuth();
     const [promoInput, setPromoInput] = useState("");
     const [discountRate, setDiscountRate] = useState(0);
     const [promoError, setPromoError] = useState(null);
+    const [placing, setPlacing] = useState(false);
 
     if (!shipping || !payment) {
         return <Navigate to="/checkout/shipping" replace />;
@@ -42,7 +46,7 @@ export default function Review() {
         }
     }
 
-    function placeOrder() {
+    async function placeOrder() {
         const order = {
             number: generateOrderNumber(),
             items,
@@ -53,6 +57,16 @@ export default function Review() {
             tax,
             total,
         };
+
+        setPlacing(true);
+        try {
+            if (user) {
+                await createOrder(user.id, order);
+            }
+        } catch {
+            // order history save failed; still complete the purchase for the shopper
+        }
+
         clearCart();
         navigate("/order-confirmation", { state: { order } });
     }
@@ -141,9 +155,10 @@ export default function Review() {
 
             <button
                 onClick={placeOrder}
-                className="flex w-full items-center justify-center gap-2 bg-action py-4 text-sm font-bold uppercase tracking-wide text-primary transition-colors hover:bg-action-hover"
+                disabled={placing}
+                className="flex w-full items-center justify-center gap-2 bg-action py-4 text-sm font-bold uppercase tracking-wide text-primary transition-colors hover:bg-action-hover disabled:opacity-60"
             >
-                Place order — {formatPrice(total)} <Lock className="h-4 w-4" />
+                {placing ? "Placing order..." : `Place order — ${formatPrice(total)}`} <Lock className="h-4 w-4" />
             </button>
             <p className="text-center text-xs text-secondary">
                 By placing your order, you agree to our Terms of Service and Privacy Policy.

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { NavLink, useNavigate } from "react-router";
 import { Search, User, ShoppingBag, Heart } from "lucide-react";
 import { useCart } from "../hooks/useCart";
+import { useAuth } from "../hooks/useAuth";
 
 const links = [
     { name: "New drops", path: "/catalog?isNew=true" },
@@ -17,6 +18,7 @@ export default function Navbar() {
     const navigate = useNavigate();
     const [query, setQuery] = useState("");
     const { count } = useCart();
+    const { user } = useAuth();
 
     function handleSearch(e) {
         e.preventDefault();
@@ -57,8 +59,17 @@ export default function Navbar() {
                     <NavLink to="/wishlist" aria-label="Wishlist" className="hidden sm:block">
                         <Heart className="h-5 w-5" />
                     </NavLink>
-                    <NavLink to="/account/login" aria-label="Account">
+                    <NavLink
+                        to={user ? "/account/profile" : "/account/login"}
+                        aria-label="Account"
+                        className="flex items-center gap-1"
+                    >
                         <User className="h-5 w-5" />
+                        {user ? (
+                            <span className="hidden text-sm lg:inline">
+                                {user.user_metadata?.full_name?.split(" ")[0] ?? "Account"}
+                            </span>
+                        ) : null}
                     </NavLink>
                     <NavLink to="/cart" aria-label="Cart" className="relative">
                         <ShoppingBag className="h-5 w-5" />
