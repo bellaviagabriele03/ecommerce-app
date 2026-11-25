@@ -40,6 +40,31 @@ const HEADERS = {
 
 const RATING_FACETS = [4, 3];
 
+const SORT_OPTIONS = [
+    { key: "newest", label: "Newest" },
+    { key: "price-asc", label: "Price: Low to High" },
+    { key: "price-desc", label: "Price: High to Low" },
+    { key: "name-asc", label: "Name: A-Z" },
+    { key: "rating-desc", label: "Rating" },
+];
+
+function sortProducts(products, sortKey) {
+    const sorted = [...products];
+
+    switch (sortKey) {
+        case "price-asc":
+            return sorted.sort((a, b) => a.price - b.price);
+        case "price-desc":
+            return sorted.sort((a, b) => b.price - a.price);
+        case "name-asc":
+            return sorted.sort((a, b) => a.name.localeCompare(b.name));
+        case "rating-desc":
+            return sorted.sort((a, b) => b.rating.rate - a.rating.rate);
+        default:
+            return sorted;
+    }
+}
+
 function filterProducts(products, searchParams) {
     const category = searchParams.get("category");
     const isNew = searchParams.get("isNew") === "true";
@@ -172,7 +197,10 @@ export default function Catalog() {
         };
     }, []);
 
-    const visibleProducts = products ? filterProducts(products, searchParams) : [];
+    const sortKey = searchParams.get("sort") ?? "newest";
+    const visibleProducts = products
+        ? sortProducts(filterProducts(products, searchParams), sortKey)
+        : [];
 
     return (
         <div className="px-6 py-8">
@@ -273,16 +301,41 @@ export default function Catalog() {
                 </aside>
 
                 <div>
-                    <div className="relative max-w-md">
-                        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-secondary" />
-                        <input
-                            type="search"
-                            value={queryInput}
-                            onChange={(e) => setQueryInput(e.target.value)}
-                            placeholder="Search products"
-                            className="search-bar w-full py-2 pl-9 pr-3 text-sm text-primary placeholder-secondary outline-none focus:ring-1 focus:ring-action"
-                        />
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+                        <div className="relative flex-1">
+                            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-secondary" />
+                            <input
+                                type="search"
+                                value={queryInput}
+                                onChange={(e) => setQueryInput(e.target.value)}
+                                placeholder="Search products"
+                                className="search-bar w-full py-2 pl-9 pr-3 text-sm text-primary placeholder-secondary outline-none focus:ring-1 focus:ring-action"
+                            />
+                        </div>
+                        <select
+                            value={sortKey}
+                            onChange={(e) =>
+                                setSearchParams((prev) => {
+                                    const next = new URLSearchParams(prev);
+                                    next.set("sort", e.target.value);
+                                    return next;
+                                })
+                            }
+                            className="search-bar py-2 px-3 text-sm text-primary outline-none focus:ring-1 focus:ring-action"
+                        >
+                            {SORT_OPTIONS.map((option) => (
+                                <option key={option.key} value={option.key}>
+                                    Sort: {option.label}
+                                </option>
+                            ))}
+                        </select>
                     </div>
+
+                    {products ? (
+                        <p className="mt-3 text-sm text-secondary">
+                            Showing {visibleProducts.length} of {products.length} products
+                        </p>
+                    ) : null}
 
                     <div className="mt-6">
                         {error ? (
