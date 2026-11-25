@@ -3,6 +3,7 @@ import { Link, useParams } from "react-router";
 import { getProductBySlug, getProducts } from "../services/api";
 import { formatPrice } from "../utils/formatPrice";
 import { useCart } from "../hooks/useCart";
+import { useToast } from "../hooks/useToast";
 import LoadingState from "../components/LoadingState";
 import ErrorState from "../components/ErrorState";
 import ProductCard from "../components/ProductCard";
@@ -22,6 +23,7 @@ export default function ProductDetail() {
 
 function ProductDetailView({ slug }) {
     const { addItem } = useCart();
+    const { addToast } = useToast();
     const [product, setProduct] = useState(null);
     const [related, setRelated] = useState([]);
     const [error, setError] = useState(null);
@@ -122,7 +124,15 @@ function ProductDetailView({ slug }) {
 
                     <button
                         disabled={!product.inStock}
-                        onClick={() => addItem(product, effectiveSize)}
+                        onClick={() => {
+                            addItem(product, effectiveSize);
+                            addToast({
+                                title: "Added to your bag",
+                                message: `${product.name} · ${categoryLabel} · ${effectiveSize}`,
+                                actionTo: "/cart",
+                                actionLabel: "View bag →",
+                            });
+                        }}
                         className="mt-6 w-full bg-action py-4 text-sm font-bold uppercase tracking-wide text-primary transition-colors hover:bg-action-hover disabled:cursor-not-allowed disabled:bg-surface disabled:text-secondary"
                     >
                         {product.inStock

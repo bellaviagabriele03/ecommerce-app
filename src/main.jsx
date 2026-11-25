@@ -4,15 +4,18 @@ import App from './App.jsx'
 import { BrowserRouter } from 'react-router'
 import { CartProvider } from './context/CartContext.jsx'
 import { WishlistProvider } from './context/WishlistContext.jsx'
+import { ToastProvider } from './context/ToastContext.jsx'
 import "./index.css"
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <BrowserRouter>
-      <CartProvider>
-        <WishlistProvider>
-          <App />
-        </WishlistProvider>
-      </CartProvider>
+      <ToastProvider>
+        <CartProvider>
+          <WishlistProvider>
+            <App />
+          </WishlistProvider>
+        </CartProvider>
+      </ToastProvider>
     </BrowserRouter>
 
   </StrictMode>,
