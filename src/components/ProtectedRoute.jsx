@@ -7,7 +7,7 @@ export default function ProtectedRoute({ children }) {
     const location = useLocation();
 
     if (loading) {
-        return <LoadingState label="Loading account..." />;
+        return <LoadingState />;
     }
 
     if (!user) {
