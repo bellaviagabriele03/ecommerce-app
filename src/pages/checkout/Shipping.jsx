@@ -1,6 +1,6 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Link, useNavigate, useOutletContext } from "react-router";
+import { Link, useLocation, useNavigate } from "react-router";
 import FormField from "../../components/FormField";
 import { useCart } from "../../hooks/useCart";
 import { useAuth } from "../../hooks/useAuth";
@@ -10,7 +10,7 @@ import { getShippingSchema } from "./checkoutSchemas";
 
 export default function Shipping() {
     const navigate = useNavigate();
-    const { shipping, setShipping } = useOutletContext();
+    const { state } = useLocation();
     const { items, subtotal } = useCart();
     const { user } = useAuth();
     const { t, locale, country } = useLocale();
@@ -21,15 +21,21 @@ export default function Shipping() {
         formState: { errors },
     } = useForm({
         resolver: zodResolver(getShippingSchema(t)),
-        defaultValues: shipping ?? { country, email: user?.email ?? "" },
+        defaultValues:
+            state?.shipping ??
+            user?.user_metadata?.shipping_address ?? {
+                country,
+                email: user?.email ?? "",
+                firstName: user?.user_metadata?.first_name ?? "",
+                lastName: user?.user_metadata?.last_name ?? "",
+            },
     });
 
     const selectedCountry = watch("country");
     const isItaly = selectedCountry === "Italy";
 
     function onSubmit(data) {
-        setShipping(data);
-        navigate("/checkout/payment");
+        navigate("/checkout/payment", { state: { shipping: data } });
     }
 
     return (

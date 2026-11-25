@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Navigate, Outlet, useLocation } from "react-router";
 import { Check } from "lucide-react";
 import { useCart } from "../../hooks/useCart";
@@ -10,8 +9,6 @@ export default function CheckoutLayout() {
     useDocumentTitle(t("checkout.title"));
     const { items } = useCart();
     const location = useLocation();
-    const [shipping, setShipping] = useState(null);
-    const [payment, setPayment] = useState(null);
 
     if (items.length === 0) {
         return <Navigate to="/cart" replace />;
@@ -49,7 +46,7 @@ export default function CheckoutLayout() {
 
             <hr className="my-6 border-surface" />
 
-            <Outlet context={{ shipping, setShipping, payment, setPayment }} />
+            <Outlet />
         </div>
     );
 }
