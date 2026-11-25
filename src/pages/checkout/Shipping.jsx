@@ -1,24 +1,11 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
 import { Link, useNavigate, useOutletContext } from "react-router";
 import FormField from "../../components/FormField";
 import { useCart } from "../../hooks/useCart";
 import { useAuth } from "../../hooks/useAuth";
 import { formatPrice } from "../../utils/formatPrice";
-
-const shippingSchema = z.object({
-    email: z.string().email("Enter a valid email address."),
-    firstName: z.string().min(1, "Required"),
-    lastName: z.string().min(1, "Required"),
-    street: z.string().min(1, "Required"),
-    apartment: z.string().optional(),
-    city: z.string().min(1, "Required"),
-    zip: z.string().min(3, "Enter a valid ZIP code."),
-    country: z.string().min(1, "Required"),
-    state: z.string().min(1, "Required"),
-    phone: z.string().min(7, "Enter a valid phone number."),
-});
+import { shippingSchema } from "./checkoutSchemas";
 
 export default function Shipping() {
     const navigate = useNavigate();

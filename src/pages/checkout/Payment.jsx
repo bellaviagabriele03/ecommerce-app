@@ -1,18 +1,9 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
 import { Navigate, useNavigate, useOutletContext } from "react-router";
 import { CreditCard } from "lucide-react";
 import FormField from "../../components/FormField";
-
-const paymentSchema = z.object({
-    cardName: z.string().min(1, "Required"),
-    cardNumber: z
-        .string()
-        .regex(/^(\d{4} ?){3}\d{4}$/, "Enter a valid 16-digit card number."),
-    expiry: z.string().regex(/^(0[1-9]|1[0-2])\/\d{2}$/, "Use MM/YY format."),
-    cvv: z.string().regex(/^\d{3,4}$/, "Enter a valid security code."),
-});
+import { paymentSchema } from "./checkoutSchemas";
 
 export default function Payment() {
     const navigate = useNavigate();
