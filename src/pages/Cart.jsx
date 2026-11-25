@@ -3,36 +3,38 @@ import { ShoppingBag } from "lucide-react";
 import { useCart } from "../hooks/useCart";
 import { formatPrice } from "../utils/formatPrice";
 import { useDocumentTitle } from "../hooks/useDocumentTitle";
+import { useLocale } from "../hooks/useLocale";
 
 const FREE_SHIPPING_THRESHOLD = 150;
 const FLAT_SHIPPING = 9.95;
 const TAX_RATE = 0.08;
 
 export default function Cart() {
-    useDocumentTitle("Your bag");
+    const { t, locale } = useLocale();
+    useDocumentTitle(t("cart.title"));
     const { items, count, subtotal, removeItem, increaseQty, decreaseQty } = useCart();
 
     if (items.length === 0) {
         return (
             <div className="px-6 py-8">
                 <p className="text-sm text-secondary">
-                    <Link to="/catalog" className="hover:text-primary">← Continue shopping</Link>
+                    <Link to="/catalog" className="hover:text-primary">{t("cart.continueShopping")}</Link>
                 </p>
 
                 <div className="mt-16 flex flex-col items-center gap-4 text-center">
-                    <p className="text-sm text-secondary">0 items</p>
+                    <p className="text-sm text-secondary">{t("cart.emptyItems")}</p>
                     <div className="flex h-20 w-20 items-center justify-center rounded-full border border-surface">
                         <ShoppingBag className="h-8 w-8 text-secondary" />
                     </div>
-                    <h1 className="font-display text-4xl uppercase text-primary">Room for something good.</h1>
+                    <h1 className="font-display text-4xl uppercase text-primary">{t("cart.emptyTitle")}</h1>
                     <p className="max-w-sm text-secondary">
-                        Your bag is empty. Find your next everyday pair or a heavyweight essential.
+                        {t("cart.emptyMessage")}
                     </p>
                     <Link
                         to="/catalog"
                         className="mt-2 bg-action px-6 py-3 text-sm font-bold uppercase tracking-wide text-primary transition-colors hover:bg-action-hover"
                     >
-                        Explore the rotation
+                        {t("cart.exploreRotation")}
                     </Link>
                 </div>
             </div>
@@ -47,20 +49,20 @@ export default function Cart() {
     return (
         <div className="px-6 py-8">
             <p className="text-sm text-secondary">
-                <Link to="/catalog" className="hover:text-primary">← Continue shopping</Link>
+                <Link to="/catalog" className="hover:text-primary">{t("cart.continueShopping")}</Link>
             </p>
 
             <div className="mt-4 flex items-end justify-between">
-                <h1 className="font-display text-5xl uppercase text-primary">Your bag</h1>
-                <p className="text-sm text-secondary">{count} items</p>
+                <h1 className="font-display text-5xl uppercase text-primary">{t("cart.title")}</h1>
+                <p className="text-sm text-secondary">{t("cart.items", { count })}</p>
             </div>
 
             <div className="mt-8 bg-surface p-4">
                 {remainingForFreeShipping === 0 ? (
-                    <p className="text-sm text-primary">✓ You unlocked free shipping.</p>
+                    <p className="text-sm text-primary">{t("cart.freeShippingUnlocked")}</p>
                 ) : (
                     <p className="text-sm text-secondary">
-                        Add {formatPrice(remainingForFreeShipping)} more for free shipping.
+                        {t("cart.freeShippingRemaining", { amount: formatPrice(remainingForFreeShipping, locale) })}
                     </p>
                 )}
                 <div className="mt-3 h-1 w-full bg-canvas">
@@ -84,16 +86,16 @@ export default function Cart() {
                                         <Link to={`/catalog/${item.slug}`} className="font-medium text-primary hover:text-action">
                                             {item.name}
                                         </Link>
-                                        <p className="text-sm text-secondary">Size {item.size}</p>
+                                        <p className="text-sm text-secondary">{t("cart.size", { size: item.size })}</p>
                                     </div>
-                                    <p className="font-semibold text-primary">{formatPrice(item.price)}</p>
+                                    <p className="font-semibold text-primary">{formatPrice(item.price, locale)}</p>
                                 </div>
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center border border-surface">
                                         <button
                                             onClick={() => decreaseQty(item.id, item.size)}
                                             className="px-3 py-1 text-primary hover:text-action"
-                                            aria-label="Decrease quantity"
+                                            aria-label={t("cart.decrease")}
                                         >
                                             −
                                         </button>
@@ -101,7 +103,7 @@ export default function Cart() {
                                         <button
                                             onClick={() => increaseQty(item.id, item.size)}
                                             className="px-3 py-1 text-primary hover:text-action"
-                                            aria-label="Increase quantity"
+                                            aria-label={t("cart.increase")}
                                         >
                                             +
                                         </button>
@@ -110,7 +112,7 @@ export default function Cart() {
                                         onClick={() => removeItem(item.id, item.size)}
                                         className="text-sm text-secondary underline hover:text-primary"
                                     >
-                                        Remove
+                                        {t("cart.remove")}
                                     </button>
                                 </div>
                             </div>
@@ -122,42 +124,42 @@ export default function Cart() {
                     <div className="flex gap-2">
                         <input
                             type="text"
-                            placeholder="Promo code"
+                            placeholder={t("cart.promoCode")}
                             className="search-bar flex-1 px-3 py-2 text-sm text-primary placeholder-secondary outline-none focus:ring-1 focus:ring-action"
                         />
                         <button className="border border-secondary px-4 text-sm font-semibold uppercase text-primary hover:border-primary">
-                            Apply
+                            {t("cart.apply")}
                         </button>
                     </div>
 
                     <div className="space-y-2 text-sm">
                         <div className="flex justify-between text-secondary">
-                            <span>Subtotal ({count} items)</span>
-                            <span>{formatPrice(subtotal)}</span>
+                            <span>{t("cart.subtotal", { count })}</span>
+                            <span>{formatPrice(subtotal, locale)}</span>
                         </div>
                         <div className="flex justify-between text-secondary">
-                            <span>Shipping</span>
-                            <span>{shipping === 0 ? "FREE" : formatPrice(shipping)}</span>
+                            <span>{t("cart.shipping")}</span>
+                            <span>{shipping === 0 ? t("cart.free") : formatPrice(shipping, locale)}</span>
                         </div>
                         <div className="flex justify-between text-secondary">
-                            <span>Estimated tax (8%)</span>
-                            <span>{formatPrice(tax)}</span>
+                            <span>{t("cart.tax")}</span>
+                            <span>{formatPrice(tax, locale)}</span>
                         </div>
                     </div>
 
                     <div className="flex justify-between border-t border-canvas pt-4 font-semibold text-primary">
-                        <span>Total</span>
-                        <span>{formatPrice(total)}</span>
+                        <span>{t("cart.total")}</span>
+                        <span>{formatPrice(total, locale)}</span>
                     </div>
 
                     <Link
                         to="/checkout"
                         className="block bg-action py-4 text-center text-sm font-bold uppercase tracking-wide text-primary transition-colors hover:bg-action-hover"
                     >
-                        Checkout — {formatPrice(total)}
+                        {t("cart.checkout", { total: formatPrice(total, locale) })}
                     </Link>
                     <p className="text-center text-xs text-secondary">
-                        Secure checkout · Encrypted payments
+                        {t("cart.secureCheckout")}
                     </p>
                 </div>
             </div>
