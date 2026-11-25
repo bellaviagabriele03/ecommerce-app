@@ -38,10 +38,16 @@ const HEADERS = {
     default: { eyebrow: "CURATED FOR THE EVERYDAY", title: "The Rotation" },
 };
 
+const RATING_FACETS = [4, 3];
+
 function filterProducts(products, searchParams) {
     const category = searchParams.get("category");
     const isNew = searchParams.get("isNew") === "true";
     const query = searchParams.get("q")?.trim().toLowerCase();
+    const minPrice = Number(searchParams.get("minPrice") ?? 0);
+    const maxPrice = searchParams.get("maxPrice") ? Number(searchParams.get("maxPrice")) : null;
+    const minRating = Number(searchParams.get("rating") ?? 0);
+    const inStockOnly = searchParams.get("inStock") === "true";
 
     return products.filter((product) => {
         if (category && !CATEGORY_GROUPS[category]?.includes(product.category)) {
@@ -51,6 +57,18 @@ function filterProducts(products, searchParams) {
             return false;
         }
         if (query && !product.name.toLowerCase().includes(query)) {
+            return false;
+        }
+        if (product.price < minPrice) {
+            return false;
+        }
+        if (maxPrice !== null && product.price > maxPrice) {
+            return false;
+        }
+        if (minRating && product.rating.rate < minRating) {
+            return false;
+        }
+        if (inStockOnly && !product.inStock) {
             return false;
         }
         return true;
@@ -66,6 +84,13 @@ export default function Catalog() {
 
     const category = searchParams.get("category");
     const isNew = searchParams.get("isNew") === "true";
+    const rating = Number(searchParams.get("rating") ?? 0);
+    const inStockOnly = searchParams.get("inStock") === "true";
+    const priceCeiling = products ? Math.ceil(Math.max(...products.map((p) => p.price)) / 10) * 10 : 200;
+    const [maxPriceInput, setMaxPriceInput] = useState(
+        searchParams.get("maxPrice") ?? ""
+    );
+    const debouncedMaxPrice = useDebounce(maxPriceInput, 300);
     const header = HEADERS[isNew ? "isNew" : category] ?? HEADERS.default;
 
     useEffect(() => {
@@ -83,6 +108,40 @@ export default function Catalog() {
         );
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [debouncedQuery]);
+
+    useEffect(() => {
+        setSearchParams(
+            (prev) => {
+                const next = new URLSearchParams(prev);
+                if (debouncedMaxPrice) {
+                    next.set("maxPrice", debouncedMaxPrice);
+                } else {
+                    next.delete("maxPrice");
+                }
+                return next;
+            },
+            { replace: true }
+        );
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [debouncedMaxPrice]);
+
+    function toggleParam(key, value) {
+        setSearchParams((prev) => {
+            const next = new URLSearchParams(prev);
+            if (next.get(key) === String(value)) {
+                next.delete(key);
+            } else {
+                next.set(key, value);
+            }
+            return next;
+        });
+    }
+
+    function resetFilters() {
+        setQueryInput("");
+        setMaxPriceInput("");
+        setSearchParams({});
+    }
 
     function selectCategory(key) {
         setSearchParams((prev) => {
@@ -160,6 +219,57 @@ export default function Catalog() {
                             })}
                         </ul>
                     </div>
+
+                    <div>
+                        <div className="flex items-center justify-between">
+                            <p className="text-xs font-semibold uppercase tracking-wide text-secondary">Price range</p>
+                            <p className="text-xs text-secondary">
+                                $0 &mdash; ${maxPriceInput || priceCeiling}
+                            </p>
+                        </div>
+                        <input
+                            type="range"
+                            min={0}
+                            max={priceCeiling}
+                            value={maxPriceInput || priceCeiling}
+                            onChange={(e) => setMaxPriceInput(e.target.value)}
+                            className="mt-4 w-full accent-action"
+                        />
+                    </div>
+
+                    <div>
+                        <p className="text-xs font-semibold uppercase tracking-wide text-secondary">Rating</p>
+                        <ul className="mt-3 space-y-1">
+                            {RATING_FACETS.map((stars) => (
+                                <li key={stars}>
+                                    <button
+                                        onClick={() => toggleParam("rating", stars)}
+                                        className={`flex w-full items-center px-3 py-2 text-sm transition-colors ${
+                                            rating === stars
+                                                ? "border border-action text-action"
+                                                : "border border-transparent text-secondary hover:text-primary"
+                                        }`}
+                                    >
+                                        {stars}★ &amp; up
+                                    </button>
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+
+                    <label className="flex items-center gap-2 text-sm text-secondary">
+                        <input
+                            type="checkbox"
+                            checked={inStockOnly}
+                            onChange={() => toggleParam("inStock", "true")}
+                            className="accent-action"
+                        />
+                        In stock only
+                    </label>
+
+                    <button onClick={resetFilters} className="text-sm text-secondary underline hover:text-primary">
+                        Reset filters
+                    </button>
                 </aside>
 
                 <div>
@@ -186,6 +296,8 @@ export default function Catalog() {
                             <ErrorState
                                 title="No results."
                                 message="Nothing matches this selection right now."
+                                onRetry={resetFilters}
+                                retryLabel="Reset filters"
                             />
                         ) : (
                             <div className="grid grid-cols-2 gap-x-6 gap-y-10 md:grid-cols-3 lg:grid-cols-3">
