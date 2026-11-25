@@ -40,6 +40,8 @@ const HEADERS = {
 
 const RATING_FACETS = [4, 3];
 
+const PAGE_SIZE = 9;
+
 const SORT_OPTIONS = [
     { key: "newest", label: "Newest" },
     { key: "price-asc", label: "Price: Low to High" },
@@ -127,6 +129,7 @@ export default function Catalog() {
                 } else {
                     next.delete("q");
                 }
+                next.delete("page");
                 return next;
             },
             { replace: true }
@@ -143,6 +146,7 @@ export default function Catalog() {
                 } else {
                     next.delete("maxPrice");
                 }
+                next.delete("page");
                 return next;
             },
             { replace: true }
@@ -158,6 +162,7 @@ export default function Catalog() {
             } else {
                 next.set(key, value);
             }
+            next.delete("page");
             return next;
         });
     }
@@ -177,6 +182,7 @@ export default function Catalog() {
             } else {
                 next.delete("category");
             }
+            next.delete("page");
             return next;
         });
     }
@@ -201,6 +207,22 @@ export default function Catalog() {
     const visibleProducts = products
         ? sortProducts(filterProducts(products, searchParams), sortKey)
         : [];
+
+    const totalPages = Math.max(1, Math.ceil(visibleProducts.length / PAGE_SIZE));
+    const page = Math.min(Number(searchParams.get("page") ?? 1), totalPages);
+    const pageProducts = visibleProducts.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+
+    function goToPage(nextPage) {
+        setSearchParams((prev) => {
+            const next = new URLSearchParams(prev);
+            if (nextPage <= 1) {
+                next.delete("page");
+            } else {
+                next.set("page", nextPage);
+            }
+            return next;
+        });
+    }
 
     return (
         <div className="px-6 py-8">
@@ -318,6 +340,7 @@ export default function Catalog() {
                                 setSearchParams((prev) => {
                                     const next = new URLSearchParams(prev);
                                     next.set("sort", e.target.value);
+                                    next.delete("page");
                                     return next;
                                 })
                             }
@@ -331,9 +354,9 @@ export default function Catalog() {
                         </select>
                     </div>
 
-                    {products ? (
+                    {products && visibleProducts.length > 0 ? (
                         <p className="mt-3 text-sm text-secondary">
-                            Showing {visibleProducts.length} of {products.length} products
+                            Showing {(page - 1) * PAGE_SIZE + 1}-{Math.min(page * PAGE_SIZE, visibleProducts.length)} of {visibleProducts.length} products
                         </p>
                     ) : null}
 
@@ -353,11 +376,45 @@ export default function Catalog() {
                                 retryLabel="Reset filters"
                             />
                         ) : (
-                            <div className="grid grid-cols-2 gap-x-6 gap-y-10 md:grid-cols-3 lg:grid-cols-3">
-                                {visibleProducts.map((product) => (
-                                    <ProductCard key={product.id} product={product} />
-                                ))}
-                            </div>
+                            <>
+                                <div className="grid grid-cols-2 gap-x-6 gap-y-10 md:grid-cols-3 lg:grid-cols-3">
+                                    {pageProducts.map((product) => (
+                                        <ProductCard key={product.id} product={product} />
+                                    ))}
+                                </div>
+
+                                {totalPages > 1 ? (
+                                    <div className="mt-10 flex items-center justify-center gap-2">
+                                        <button
+                                            onClick={() => goToPage(page - 1)}
+                                            disabled={page <= 1}
+                                            className="px-3 py-2 text-sm text-secondary hover:text-primary disabled:cursor-not-allowed disabled:opacity-40"
+                                        >
+                                            Prev
+                                        </button>
+                                        {Array.from({ length: totalPages }, (_, i) => i + 1).map((n) => (
+                                            <button
+                                                key={n}
+                                                onClick={() => goToPage(n)}
+                                                className={`h-8 w-8 text-sm transition-colors ${
+                                                    n === page
+                                                        ? "bg-action text-primary"
+                                                        : "text-secondary hover:text-primary"
+                                                }`}
+                                            >
+                                                {n}
+                                            </button>
+                                        ))}
+                                        <button
+                                            onClick={() => goToPage(page + 1)}
+                                            disabled={page >= totalPages}
+                                            className="px-3 py-2 text-sm text-secondary hover:text-primary disabled:cursor-not-allowed disabled:opacity-40"
+                                        >
+                                            Next
+                                        </button>
+                                    </div>
+                                ) : null}
+                            </>
                         )}
                     </div>
                 </div>
