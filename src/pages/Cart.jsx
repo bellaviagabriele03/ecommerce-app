@@ -4,15 +4,15 @@ import { useCart } from "../hooks/useCart";
 import { formatPrice } from "../utils/formatPrice";
 import { useDocumentTitle } from "../hooks/useDocumentTitle";
 import { useLocale } from "../hooks/useLocale";
-
-const FREE_SHIPPING_THRESHOLD = 150;
-const FLAT_SHIPPING = 9.95;
-const TAX_RATE = 0.08;
+import { usePromoCode } from "../hooks/usePromoCode";
+import { calculateTotals, FREE_SHIPPING_THRESHOLD } from "../utils/pricing";
+import PromoCodeBox from "../components/PromoCodeBox";
 
 export default function Cart() {
     const { t, locale } = useLocale();
     useDocumentTitle(t("cart.title"));
     const { items, count, subtotal, removeItem, increaseQty, decreaseQty } = useCart();
+    const promo = usePromoCode();
 
     if (items.length === 0) {
         return (
@@ -41,10 +41,10 @@ export default function Cart() {
         );
     }
 
-    const shipping = subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : FLAT_SHIPPING;
-    const tax = subtotal * TAX_RATE;
-    const total = subtotal + shipping + tax;
-    const remainingForFreeShipping = Math.max(0, FREE_SHIPPING_THRESHOLD - subtotal);
+    const { discount, discountedSubtotal, shipping, tax, total, remainingForFreeShipping } = calculateTotals(
+        subtotal,
+        promo.discountRate
+    );
 
     return (
         <div className="px-6 py-8">
@@ -68,7 +68,7 @@ export default function Cart() {
                 <div className="mt-3 h-1 w-full bg-canvas">
                     <div
                         className="h-1 bg-action transition-all"
-                        style={{ width: `${Math.min(100, (subtotal / FREE_SHIPPING_THRESHOLD) * 100)}%` }}
+                        style={{ width: `${Math.min(100, (discountedSubtotal / FREE_SHIPPING_THRESHOLD) * 100)}%` }}
                     />
                 </div>
             </div>
@@ -121,22 +121,19 @@ export default function Cart() {
                 </ul>
 
                 <div className="h-fit space-y-6 bg-surface p-6">
-                    <div className="flex gap-2">
-                        <input
-                            type="text"
-                            placeholder={t("cart.promoCode")}
-                            className="search-bar min-w-0 flex-1 px-3 py-2 text-sm text-primary placeholder-secondary outline-none focus:ring-1 focus:ring-action"
-                        />
-                        <button className="shrink-0 border border-secondary px-4 text-sm font-semibold uppercase text-primary hover:border-primary">
-                            {t("cart.apply")}
-                        </button>
-                    </div>
+                    <PromoCodeBox promo={promo} />
 
                     <div className="space-y-2 text-sm">
                         <div className="flex justify-between text-secondary">
                             <span>{t("cart.subtotal", { count })}</span>
                             <span>{formatPrice(subtotal, locale)}</span>
                         </div>
+                        {discount > 0 ? (
+                            <div className="flex justify-between text-action">
+                                <span>{t("checkout.discount")} ({Math.round(promo.discountRate * 100)}%)</span>
+                                <span>-{formatPrice(discount, locale)}</span>
+                            </div>
+                        ) : null}
                         <div className="flex justify-between text-secondary">
                             <span>{t("cart.shipping")}</span>
                             <span>{shipping === 0 ? t("cart.free") : formatPrice(shipping, locale)}</span>
