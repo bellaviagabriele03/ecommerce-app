@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router";
 import { getProductBySlug, getProducts } from "../services/api";
 import { formatPrice } from "../utils/formatPrice";
+import { useCart } from "../hooks/useCart";
 import LoadingState from "../components/LoadingState";
 import ErrorState from "../components/ErrorState";
 import ProductCard from "../components/ProductCard";
@@ -20,6 +21,7 @@ export default function ProductDetail() {
 }
 
 function ProductDetailView({ slug }) {
+    const { addItem } = useCart();
     const [product, setProduct] = useState(null);
     const [related, setRelated] = useState([]);
     const [error, setError] = useState(null);
@@ -62,6 +64,7 @@ function ProductDetailView({ slug }) {
     }
 
     const categoryLabel = CATEGORY_LABELS[product.category] ?? product.category;
+    const effectiveSize = selectedSize ?? product.sizes[0];
 
     return (
         <div className="px-6 py-8">
@@ -107,7 +110,7 @@ function ProductDetailView({ slug }) {
                                 key={size}
                                 onClick={() => setSelectedSize(size)}
                                 className={`border px-3 py-2 text-sm transition-colors ${
-                                    selectedSize === size
+                                    effectiveSize === size
                                         ? "border-action bg-action text-primary"
                                         : "border-surface text-primary hover:border-secondary"
                                 }`}
@@ -119,6 +122,7 @@ function ProductDetailView({ slug }) {
 
                     <button
                         disabled={!product.inStock}
+                        onClick={() => addItem(product, effectiveSize)}
                         className="mt-6 w-full bg-action py-4 text-sm font-bold uppercase tracking-wide text-primary transition-colors hover:bg-action-hover disabled:cursor-not-allowed disabled:bg-surface disabled:text-secondary"
                     >
                         {product.inStock
